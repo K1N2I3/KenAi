@@ -21,6 +21,7 @@
     --radius-md: 12px;
     --radius-lg: 16px;
     --dark-secondary-background: #2a3140;
+    --app-height: 100vh;
 }
 
 /* 深色模式变量 */
@@ -50,12 +51,26 @@
 }
 
 body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    line-height: 1.5;
-    height: 100vh;
+    height: 100vh; /* 确保内容填满整个视口高度 */
+    overflow: hidden; /* 防止页面滚动 */
+    -webkit-text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+html {
+    height: 100%;
     overflow: hidden;
-    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* 按钮基础样式 */
@@ -90,11 +105,14 @@ button:disabled {
     position: relative;
     background-color: white;
     margin: 10% auto;
-    padding: 30px;
-    border-radius: var(--radius-lg);
+    padding: 24px;
+    border-radius: 12px;
     width: 90%;
     max-width: 500px;
-    box-shadow: var(--shadow-md);
+    max-height: 80vh; /* 限制最大高度 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease;
+    overflow: visible; /* 修改为visible，防止出现滚动条 */
 }
 
 .close {
@@ -1008,11 +1026,14 @@ body.hide-welcome .welcome-message {
     position: relative;
     background-color: white;
     margin: 10% auto;
-    padding: 30px;
-    border-radius: var(--radius-lg);
+    padding: 24px;
+    border-radius: 12px;
     width: 90%;
     max-width: 500px;
-    box-shadow: var(--shadow-md);
+    max-height: 80vh; /* 限制最大高度 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease;
+    overflow: visible; /* 修改为visible，防止出现滚动条 */
 }
 
 .close {
@@ -1026,12 +1047,17 @@ body.hide-welcome .welcome-message {
     z-index: 1001;
 }
 
+.close:hover {
+    color: var(--text-color);
+}
+
 /* 设置表单样式 */
 .settings-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
     padding: 8px 0;
+    overflow: visible; /* 防止滚动 */
 }
 
 .settings-form .form-group {
@@ -1434,9 +1460,9 @@ input:checked + .slider:before {
 
 /* 深色模式下模态框样式 */
 .dark-mode .modal-content {
-    background-color: #252526;
+    background-color: var(--sidebar-color);
     color: #e0e0e0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
 }
 
 /* 深色模式下的设置面板样式 */
@@ -1450,7 +1476,7 @@ input:checked + .slider:before {
 
 /* 深色模式下确认对话框样式 */
 .dark-mode .confirm-dialog {
-    background-color: #252526;
+    background-color: var(--sidebar-color);
     color: #e0e0e0;
 }
 
@@ -1740,4 +1766,202 @@ body {
 
 .dark-mode .login-logo .logo-text {
     color: var(--text-color);
+}
+
+/* 确保设置面板在平板设备上的适配 */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-content {
+        margin: 15% auto;
+        max-height: 70vh;
+        padding: 20px;
+        width: 80%;
+    }
+    
+    .settings-form {
+        gap: 12px;
+    }
+}
+
+/* iPad特定适配 */
+@media only screen 
+and (min-device-width: 768px) 
+and (max-device-width: 1024px) {
+    .modal-content {
+        overflow: visible;
+        margin: 20% auto;
+    }
+    
+    body, html {
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .container {
+        overflow: hidden; 
+        height: 100vh;
+    }
+}
+
+/* 确保应用完全填充视口，防止底部白条 */
+.app-container, 
+#app, 
+.container, 
+.sidebar, 
+.main-content {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+/* 特别针对iPad底部白条的修复 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    body, html, .container, .app-container, #app {
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: relative;
+    }
+    
+    .input-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--sidebar-color);
+    }
+}
+
+/* 修复iPad上的设置模态框 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+    }
+    
+    .modal-content {
+        margin: 15% auto;
+        width: 70%;
+        max-height: none;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .settings-form {
+        overflow: visible;
+        max-height: none;
+    }
+}
+
+/* iPad专用设置窗口样式 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .modal-content {
+        padding: 20px;
+    }
+    
+    /* 调整设置窗口中各元素的间距，使其布局更紧凑 */
+    .settings-form {
+        gap: 10px;
+    }
+    
+    .settings-form .form-group {
+        margin-bottom: 0;
+    }
+    
+    /* 减小标签和输入框之间的空间 */
+    .form-group label {
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+    
+    /* 减小输入框的高度 */
+    .form-group input {
+        padding: 10px 14px;
+    }
+    
+    /* 调整自定义选择器的高度 */
+    .language-select-header,
+    .model-select-header {
+        height: 40px;
+        padding: 8px 12px;
+    }
+    
+    /* 调整设置说明文本的大小和边距 */
+    .settings-note {
+        padding: 8px;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+    
+    /* 确保设置模态框固定高度，防止滚动 */
+    .modal-content {
+        height: auto;
+        max-height: none;
+    }
+}
+
+/* 修复iPad横屏模式 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+    .modal-content {
+        margin: 10% auto;
+        width: 60%;
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    .container, body, html {
+        height: -webkit-fill-available;
+    }
+    
+    .main-content, .chat-container, .sidebar {
+        height: -webkit-fill-available;
+    }
+    
+    .login-container {
+        height: -webkit-fill-available;
+    }
+}
+
+/* 在移动设备上使用更强的防止溢出设置 */
+@media only screen and (max-width: 1024px) {
+    body, html {
+        position: fixed;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+    }
 }

@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         apiKey: localStorage.getItem('apiKey') || 'sk-9e6382d54ac645f691bc55191e7ac0e2',
         apiBaseUrl: localStorage.getItem('apiBaseUrl') || 'https://api.deepseek.com/v1',
         model: localStorage.getItem('model') || 'deepseek-chat',
-        language: localStorage.getItem('language') || 'zh'
+        language: localStorage.getItem('language') || 'en'
     };
     let isWaitingForResponse = false;
     let currentLanguage = settings.language;

@@ -41,8 +41,8 @@
             </div>
             <div class="login-form">
                 <div class="form-group">
-                    <label for="password">Enter Access Password</label>
-                    <input type="password" id="password" placeholder="Enter password">
+                    <label for="password">Enter Invitation Code</label>
+                    <input type="password" id="password" placeholder="Enter Invitation Code">
                 </div>
                 <button id="loginBtn" class="login-btn">Login</button>
             </div>
@@ -51,6 +51,9 @@
 
     <!-- 主应用容器 -->
     <div id="appContainer" class="container" style="display: none;">
+        <!-- 主题切换效果容器 -->
+        <div class="theme-transition-effect" id="themeTransitionEffect"></div>
+        
         <div class="sidebar">
             <div class="sidebar-header">
                 <button class="toggle-sidebar-btn" id="toggleSidebarBtn">
@@ -148,7 +151,16 @@
                         </select>
                     </div>
                 </div>
-                <button id="saveSettingsBtn" class="save-btn">保存设置</button>
+                <div class="form-group">
+                    <label for="darkModeSwitch" id="darkModeLabel">Dark Mode</label>
+                    <div class="switch-container">
+                        <label class="switch">
+                            <input type="checkbox" id="darkModeSwitch">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-note" id="settingsNote">所有设置更改会自动保存</div>
             </div>
         </div>
     </div>

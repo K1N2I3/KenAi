@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsModal = document.getElementById('settingsModal');
     const closeModalBtn = document.querySelector('.close');
-    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     const apiKeyInput = document.getElementById('apiKey');
     const apiBaseUrlInput = document.getElementById('apiBaseUrl');
     const modelSelect = document.getElementById('modelSelect');
@@ -84,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 确保所有元素都存在
     if (!chatContainer || !userInput || !sendBtn || !newChatBtn || !chatHistory || 
-        !settingsBtn || !settingsModal || !closeModalBtn || !saveSettingsBtn || 
+        !settingsBtn || !settingsModal || !closeModalBtn || 
         !apiKeyInput || !modelSelect || !welcomeMessage) {
         console.error('Some DOM elements are missing!');
         return;
@@ -106,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
             apiBaseUrlPlaceholder: 'API 基础 URL',
             apiBaseUrlHint: '默认使用 DeepSeek API: https://api.deepseek.com/v1',
             languageSelectLabel: '语言 / Language',
-            saveSettings: '保存设置',
             welcomeTitle: '我是 KenAi，很高兴见到你！',
             welcomeDesc: '我可以帮你写代码、读文件、写作各种创意内容，请把你的任务交给我吧～',
             examplePromptsTitle: '你可以尝试问我：',
@@ -122,7 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
             apiKeyRequired: '请先在设置中配置 KenAi API 密钥',
             errorPrefix: '请求失败: ',
             thinking: '正在思考...',
-            version: 'KenAi v1.1'
+            version: 'KenAi v1.1',
+            darkModeLabel: '深色模式',
+            darkMode: '深色模式',
+            settingsNote: '所有设置更改会自动保存'
         },
         en: {
             newChat: 'New Chat',
@@ -138,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
             apiBaseUrlPlaceholder: 'API Base URL',
             apiBaseUrlHint: 'Default: DeepSeek API: https://api.deepseek.com/v1',
             languageSelectLabel: 'Language / 语言',
-            saveSettings: 'Save Settings',
             welcomeTitle: 'I am KenAi, nice to meet you!',
             welcomeDesc: 'I can help you write code, read files, create content, and more. What can I help you with today?',
             examplePromptsTitle: 'You can try asking me:',
@@ -154,7 +154,10 @@ document.addEventListener('DOMContentLoaded', function() {
             apiKeyRequired: 'Please configure your KenAi API key in settings first',
             errorPrefix: 'Request failed: ',
             thinking: 'Thinking...',
-            version: 'KenAi v1.1'
+            version: 'KenAi v1.1',
+            darkModeLabel: 'Dark Mode',
+            darkMode: 'Dark Mode',
+            settingsNote: 'All settings are saved automatically'
         }
     };
 
@@ -165,12 +168,32 @@ document.addEventListener('DOMContentLoaded', function() {
         apiKey: localStorage.getItem('apiKey') || 'sk-9e6382d54ac645f691bc55191e7ac0e2',
         apiBaseUrl: localStorage.getItem('apiBaseUrl') || 'https://api.deepseek.com/v1',
         model: localStorage.getItem('model') || 'deepseek-chat',
-        language: localStorage.getItem('language') || 'en'
+        language: localStorage.getItem('language') || 'en',
+        darkMode: localStorage.getItem('darkMode') === 'true' || false
     };
     let isWaitingForResponse = false;
     let currentLanguage = settings.language;
 
-    // 初始化应用
+    // 全局变量，保存监听器函数引用
+    let languageClickListener = null;
+    let modelClickListener = null;
+
+    // 全局变量，保存全局点击事件的监听器
+    let globalClickListener = null;
+
+    // 添加全局点击事件，用于关闭所有选择器
+    function setupGlobalClickHandler() {
+        document.addEventListener('click', function(event) {
+            const selectors = document.querySelectorAll('.custom-language-selector, .custom-model-selector');
+            selectors.forEach(selector => {
+                if (!selector.contains(event.target)) {
+                    selector.classList.remove('open');
+                }
+            });
+        });
+    }
+
+    // 将初始化自定义选择器的调用移动到这个函数中，确保只调用一次
     function initializeApp() {
         // 加载设置和对话
         loadSettings();
@@ -179,9 +202,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // 绑定事件监听器
         bindEventListeners();
         
+        // 添加全局点击事件处理
+        setupGlobalClickHandler();
+        
         // 更新UI
         updateUILanguage();
         updateChatHistory();
+        
+        // 应用深色模式
+        applyDarkMode();
+        
+        // 确保自定义选择器初始化
+        if (!document.querySelector('.custom-language-selector')) {
+            initCustomLanguageSelector();
+        }
+        
+        if (!document.querySelector('.custom-model-selector')) {
+            initCustomModelSelector();
+        }
         
         // 如果没有对话，创建新对话
         if (Object.keys(conversations).length === 0) {
@@ -230,7 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
         newChatBtn.addEventListener('click', createNewChat);
         settingsBtn.addEventListener('click', openSettings);
         closeModalBtn.addEventListener('click', closeSettings);
-        saveSettingsBtn.addEventListener('click', saveSettings);
         
         if (clearAllChatsBtn) {
             clearAllChatsBtn.addEventListener('click', confirmClearAllChats);
@@ -240,7 +277,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (languageSelect) {
             languageSelect.addEventListener('change', function() {
                 currentLanguage = this.value;
+                // 语言切换后立即更新UI
                 updateUILanguage();
+                // 立即保存设置
+                localStorage.setItem('language', currentLanguage);
+                settings.language = currentLanguage;
+                
+                // 更新自定义语言选择器
+                updateCustomLanguageSelector();
+            });
+        }
+        
+        // 模型选择立即生效
+        if (modelSelect) {
+            modelSelect.addEventListener('change', function() {
+                settings.model = this.value;
+                // 保存设置到localStorage
+                localStorage.setItem('model', settings.model);
+                // 更新自定义模型选择器
+                updateCustomModelSelector();
+            });
+        }
+        
+        // 深色模式切换 - 添加立即生效功能
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+        if (darkModeSwitch) {
+            darkModeSwitch.addEventListener('change', function() {
+                // 切换深色模式后立即生效
+                settings.darkMode = this.checked;
+                // 应用深色模式
+                applyDarkMode();
+                // 保存设置到localStorage
+                localStorage.setItem('darkMode', settings.darkMode);
             });
         }
 
@@ -281,6 +349,247 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         modelSelect.value = settings.model;
         languageSelect.value = settings.language;
+        
+        // 设置深色模式开关状态
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+        if (darkModeSwitch) {
+            darkModeSwitch.checked = settings.darkMode;
+        }
+        
+        // 应用深色模式
+        applyDarkMode();
+        
+        // 初始化自定义语言选择器
+        initCustomLanguageSelector();
+        // 初始化自定义模型选择器
+        initCustomModelSelector();
+    }
+
+    // 初始化自定义语言选择器
+    function initCustomLanguageSelector() {
+        if (!languageSelect) return;
+        
+        // 检查是否已经存在自定义选择器，避免重复创建
+        if (document.querySelector('.custom-language-selector')) return;
+        
+        // 使用更精确的选择器，确保获取到正确的select-container
+        const languageSelectWrapper = languageSelect.parentElement;
+        if (!languageSelectWrapper || !languageSelectWrapper.classList.contains('select-container')) return;
+        
+        // 创建自定义选择器结构
+        const customSelector = document.createElement('div');
+        customSelector.className = 'custom-language-selector';
+        
+        const header = document.createElement('div');
+        header.className = 'language-select-header';
+        
+        const headerText = document.createElement('div');
+        headerText.className = 'language-select-header-text';
+        
+        const arrow = document.createElement('div');
+        arrow.className = 'language-select-arrow';
+        
+        const options = document.createElement('div');
+        options.className = 'language-select-options';
+        
+        // 获取当前选中的语言
+        const selectedValue = languageSelect.value;
+        const selectedText = [...languageSelect.options].find(option => option.value === selectedValue)?.textContent || selectedValue;
+        headerText.textContent = selectedText;
+        
+        // 添加选项
+        [...languageSelect.options].forEach(option => {
+            const optionEl = document.createElement('div');
+            optionEl.className = 'language-option';
+            if (option.value === selectedValue) {
+                optionEl.classList.add('selected');
+            }
+            optionEl.textContent = option.textContent;
+            options.appendChild(optionEl);
+            
+            // 添加点击事件
+            optionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 更新原生选择器的值
+                languageSelect.value = option.value;
+                
+                // 触发change事件
+                const event = new Event('change');
+                languageSelect.dispatchEvent(event);
+                
+                // 更新UI
+                headerText.textContent = option.textContent;
+                document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('selected'));
+                optionEl.classList.add('selected');
+                
+                // 关闭选项列表
+                customSelector.classList.remove('open');
+            });
+        });
+        
+        // 添加点击事件以打开/关闭选项列表
+        header.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止冒泡，避免触发全局点击
+            
+            // 关闭所有已打开的选择器，确保只有一个打开
+            document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(selector => {
+                if (selector !== customSelector) {
+                    selector.classList.remove('open');
+                }
+            });
+            
+            // 切换当前选择器
+            customSelector.classList.toggle('open');
+        });
+        
+        // 组装选择器
+        header.appendChild(headerText);
+        header.appendChild(arrow);
+        customSelector.appendChild(header);
+        customSelector.appendChild(options);
+        
+        // 添加到DOM
+        languageSelectWrapper.insertBefore(customSelector, languageSelect);
+    }
+
+    // 初始化自定义模型选择器
+    function initCustomModelSelector() {
+        if (!modelSelect) return;
+        
+        // 检查是否已经存在自定义选择器，避免重复创建
+        if (document.querySelector('.custom-model-selector')) return;
+        
+        // 使用更精确的选择器，确保获取到正确的select-container
+        const modelSelectWrapper = modelSelect.parentElement;
+        if (!modelSelectWrapper || !modelSelectWrapper.classList.contains('select-container')) return;
+        
+        // 创建自定义选择器结构
+        const customSelector = document.createElement('div');
+        customSelector.className = 'custom-model-selector';
+        
+        const header = document.createElement('div');
+        header.className = 'model-select-header';
+        
+        const headerText = document.createElement('div');
+        headerText.className = 'model-select-header-text';
+        
+        const arrow = document.createElement('div');
+        arrow.className = 'model-select-arrow';
+        
+        const options = document.createElement('div');
+        options.className = 'model-select-options';
+        
+        // 获取当前选中的模型
+        const selectedValue = modelSelect.value;
+        const selectedText = [...modelSelect.options].find(option => option.value === selectedValue)?.textContent || selectedValue;
+        headerText.textContent = selectedText;
+        
+        // 添加选项
+        [...modelSelect.options].forEach(option => {
+            const optionEl = document.createElement('div');
+            optionEl.className = 'model-option';
+            if (option.value === selectedValue) {
+                optionEl.classList.add('selected');
+            }
+            optionEl.textContent = option.textContent;
+            options.appendChild(optionEl);
+            
+            // 添加点击事件
+            optionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 更新原生选择器的值
+                modelSelect.value = option.value;
+                
+                // 触发change事件
+                const event = new Event('change');
+                modelSelect.dispatchEvent(event);
+                
+                // 更新UI
+                headerText.textContent = option.textContent;
+                document.querySelectorAll('.model-option').forEach(opt => opt.classList.remove('selected'));
+                optionEl.classList.add('selected');
+                
+                // 关闭选项列表
+                customSelector.classList.remove('open');
+            });
+        });
+        
+        // 添加点击事件以打开/关闭选项列表
+        header.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止冒泡，避免触发全局点击
+            
+            // 关闭所有已打开的选择器，确保只有一个打开
+            document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(selector => {
+                if (selector !== customSelector) {
+                    selector.classList.remove('open');
+                }
+            });
+            
+            // 切换当前选择器
+            customSelector.classList.toggle('open');
+        });
+        
+        // 组装选择器
+        header.appendChild(headerText);
+        header.appendChild(arrow);
+        customSelector.appendChild(header);
+        customSelector.appendChild(options);
+        
+        // 添加到DOM
+        modelSelectWrapper.insertBefore(customSelector, modelSelect);
+    }
+
+    // 更新自定义语言选择器
+    function updateCustomLanguageSelector() {
+        const headerText = document.querySelector('.language-select-header-text');
+        if (!headerText) return;
+        
+        const selectedOption = [...languageSelect.options].find(option => option.value === languageSelect.value);
+        if (selectedOption) {
+            headerText.textContent = selectedOption.textContent;
+        }
+        
+        const options = document.querySelectorAll('.language-option');
+        options.forEach(option => {
+            const optionText = option.textContent;
+            if (optionText === selectedOption.textContent) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    // 更新自定义模型选择器
+    function updateCustomModelSelector() {
+        const headerText = document.querySelector('.model-select-header-text');
+        if (!headerText) return;
+        
+        const selectedOption = [...modelSelect.options].find(option => option.value === modelSelect.value);
+        if (selectedOption) {
+            headerText.textContent = selectedOption.textContent;
+        }
+        
+        const options = document.querySelectorAll('.model-option');
+        options.forEach(option => {
+            const optionText = option.textContent;
+            if (optionText === selectedOption.textContent) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    // 应用深色模式
+    function applyDarkMode() {
+        if (settings.darkMode) {
+            // 应用深色模式
+            document.body.classList.add('dark-mode');
+        } else {
+            // 移除深色模式
+            document.body.classList.remove('dark-mode');
+        }
     }
 
     // 更新UI语言
@@ -312,7 +621,13 @@ document.addEventListener('DOMContentLoaded', function() {
         apiBaseUrlInput.placeholder = translations[currentLanguage].apiBaseUrlPlaceholder;
         document.getElementById('apiBaseUrlHint').textContent = translations[currentLanguage].apiBaseUrlHint;
         document.getElementById('languageSelectLabel').textContent = translations[currentLanguage].languageSelectLabel;
-        saveSettingsBtn.textContent = translations[currentLanguage].saveSettings;
+        document.getElementById('darkModeLabel').textContent = translations[currentLanguage].darkModeLabel;
+        
+        // 更新设置说明文本
+        const settingsNoteEl = document.getElementById('settingsNote');
+        if (settingsNoteEl) {
+            settingsNoteEl.textContent = translations[currentLanguage].settingsNote;
+        }
         
         // 更新欢迎消息
         const welcomeTitle = welcomeMessage.querySelector('h2');
@@ -345,6 +660,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (versionInfo) {
             versionInfo.textContent = translations[currentLanguage].version;
         }
+        
+        // 更新自定义语言选择器
+        updateCustomLanguageSelector();
+        // 更新自定义模型选择器
+        updateCustomModelSelector();
     }
 
     // 创建新对话
@@ -614,7 +934,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const avatar = document.createElement('div');
         avatar.className = `avatar ${role}-avatar`;
-        avatar.textContent = role === 'user' ? '' : 'K';
+        
+        // 修复AI头像样式问题，确保背景色和样式正确应用
+        if (role === 'user') {
+            avatar.textContent = '';
+        } else {
+            avatar.textContent = 'K';
+            // 确保AI头像样式直接应用，避免CSS加载顺序问题
+            avatar.style.background = 'linear-gradient(135deg, #0084ff, #0070e0)';
+            avatar.style.color = 'white';
+            avatar.style.fontWeight = 'bold';
+            avatar.style.display = 'flex';
+            avatar.style.alignItems = 'center';
+            avatar.style.justifyContent = 'center';
+            avatar.style.boxShadow = '0 2px 8px rgba(0, 132, 255, 0.2)';
+        }
         
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
@@ -689,6 +1023,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const aiAvatar = document.createElement('div');
         aiAvatar.className = 'avatar ai-avatar';
         aiAvatar.textContent = 'K';
+        // 直接添加内联样式确保应用
+        aiAvatar.style.background = 'linear-gradient(135deg, #0084ff, #0070e0)';
+        aiAvatar.style.color = 'white';
+        aiAvatar.style.fontWeight = 'bold';
+        aiAvatar.style.display = 'flex';
+        aiAvatar.style.alignItems = 'center';
+        aiAvatar.style.justifyContent = 'center';
+        aiAvatar.style.boxShadow = '0 2px 8px rgba(0, 132, 255, 0.2)';
         messageDiv.appendChild(aiAvatar);
         
         // 创建消息内容容器
@@ -1104,21 +1446,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 打开设置模态框
     function openSettings() {
+        // 直接更新表单值，不重新初始化
+        apiKeyInput.value = settings.apiKey;
+        if (apiBaseUrlInput) {
+            apiBaseUrlInput.value = settings.apiBaseUrl;
+        }
+        modelSelect.value = settings.model;
+        languageSelect.value = settings.language;
+        
+        // 设置深色模式开关状态
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+        if (darkModeSwitch) {
+            darkModeSwitch.checked = settings.darkMode;
+        }
+        
+        // 显示模态框
         settingsModal.style.display = 'block';
         document.body.style.overflow = 'hidden'; // 防止背景滚动
     }
 
     // 关闭设置模态框
     function closeSettings() {
+        // 关闭模态框时自动保存当前设置
+        saveSettingsWithoutClosing();
         settingsModal.style.display = 'none';
         document.body.style.overflow = ''; // 恢复背景滚动
     }
 
-    // 保存设置
-    function saveSettings() {
+    // 保存设置但不关闭模态框（用于自动保存场景）
+    function saveSettingsWithoutClosing() {
         settings.apiKey = apiKeyInput.value.trim();
         settings.model = modelSelect.value;
         settings.language = languageSelect.value;
+        
+        // 获取深色模式设置
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+        if (darkModeSwitch) {
+            settings.darkMode = darkModeSwitch.checked;
+        }
         
         if (apiBaseUrlInput) {
             settings.apiBaseUrl = apiBaseUrlInput.value.trim() || 'https://api.deepseek.com/v1';
@@ -1128,13 +1493,12 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('model', settings.model);
         localStorage.setItem('apiBaseUrl', settings.apiBaseUrl);
         localStorage.setItem('language', settings.language);
-        
-        // 更新当前语言
-        currentLanguage = settings.language;
-        
-        // 更新UI语言
-        updateUILanguage();
-        
+        localStorage.setItem('darkMode', settings.darkMode);
+    }
+
+    // 保存设置并关闭模态框（保留但实际上不再使用）
+    function saveSettings() {
+        saveSettingsWithoutClosing();
         closeSettings();
     }
 

@@ -20,6 +20,25 @@
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
+    --dark-secondary-background: #2a3140;
+}
+
+/* 深色模式变量 */
+.dark-mode {
+    --primary-color: #1a91ff;
+    --secondary-color: #1a7ad4;
+    --background-color: #1e1e1e;
+    --sidebar-color: #252526;
+    --text-color: #e0e0e0;
+    --light-text-color: #a0a0a0;
+    --border-color: #444444;
+    --user-message-bg: #1a91ff;
+    --user-message-text: #ffffff;
+    --ai-message-bg: #2d2d2d;
+    --hover-color: #333333;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --dark-secondary-background: #2a3140;
 }
 
 * {
@@ -27,12 +46,16 @@
     padding: 0;
     box-sizing: border-box;
     font-family: var(--font-sans);
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* 按钮基础样式 */
@@ -67,7 +90,7 @@ button:disabled {
     position: relative;
     background-color: white;
     margin: 10% auto;
-    padding: 24px;
+    padding: 30px;
     border-radius: var(--radius-lg);
     width: 90%;
     max-width: 500px;
@@ -188,6 +211,7 @@ button:disabled {
     box-shadow: var(--shadow-sm);
     position: relative;
     height: 100vh;
+    transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logo {
@@ -651,6 +675,7 @@ body.hide-welcome .welcome-message {
     max-width: 85%;
     gap: 12px;
     animation: fadeIn 0.3s ease-out;
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .user-message {
@@ -688,23 +713,48 @@ body.hide-welcome .welcome-message {
     box-shadow: 0 2px 8px rgba(0, 132, 255, 0.2);
 }
 
+/* 通用消息内容样式改进 */
 .message-content {
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 12px;
     font-size: 15px;
     line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+/* 用户消息样式改进 */
 .user-message .message-content {
     background-color: var(--primary-color);
     color: white;
+    border: none;
+    box-shadow: 0 3px 8px rgba(0, 132, 255, 0.3);
 }
 
+/* AI消息样式改进 */
 .ai-message .message-content {
     background-color: #f4f4f5;
     color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* 深色模式下的AI消息改进 */
+.dark-mode .ai-message .message-content {
+    background-color: var(--ai-message-bg);
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 深色模式下的用户消息改进 */
+.dark-mode .user-message .message-content {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    box-shadow: 0 3px 10px rgba(26, 145, 255, 0.5);
 }
 
 /* 代码块样式 */
@@ -858,6 +908,7 @@ body.hide-welcome .welcome-message {
     position: sticky;
     bottom: 0;
     z-index: 10;
+    transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #userInput {
@@ -881,17 +932,20 @@ body.hide-welcome .welcome-message {
     box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.2);
 }
 
+/* 默认隐藏发送按钮（在桌面设备上） */
 .send-btn {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, #0084ff, #0070e0);
     color: white;
+    border: none;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    display: flex;
+    display: none; /* 默认不显示 */
     align-items: center;
     justify-content: center;
-    margin-left: 12px;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 10px;
     flex-shrink: 0;
     box-shadow: var(--shadow-sm);
 }
@@ -913,12 +967,28 @@ body.hide-welcome .welcome-message {
     box-shadow: none;
 }
 
-/* 紧急修复按钮样式 */
-.prompt-btn, .settings-btn, .send-btn, .new-chat-btn {
-    pointer-events: auto;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
+/* 在触屏设备（如iPad）上显示发送按钮 */
+@media (hover: none) and (pointer: coarse), (max-width: 1024px) {
+    .send-btn {
+        display: flex; /* 在触屏设备上显示 */
+        transform: translateY(-4px); /* 向上调整位置 */
+    }
+}
+
+/* 平板和移动设备上的额外样式 */
+@media (max-width: 768px) {
+    .send-btn {
+        width: 44px; /* 稍微大一些方便触摸 */
+        height: 44px;
+        transform: translateY(-6px); /* 在更小的设备上位置更高一些 */
+    }
+}
+
+/* 确保hover时的向上位移不会与初始位移叠加 */
+@media (hover: none) and (pointer: coarse), (max-width: 1024px) {
+    .send-btn:hover {
+        transform: translateY(-5px); /* 调整hover时的位移效果 */
+    }
 }
 
 /* 确保模态框正确显示 */
@@ -938,7 +1008,7 @@ body.hide-welcome .welcome-message {
     position: relative;
     background-color: white;
     margin: 10% auto;
-    padding: 24px;
+    padding: 30px;
     border-radius: var(--radius-lg);
     width: 90%;
     max-width: 500px;
@@ -960,13 +1030,459 @@ body.hide-welcome .welcome-message {
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.settings-form .form-group {
+    margin-bottom: 0; /* 移除额外的底部间距 */
+}
+
+/* 让设置说明标签更好看 */
+.settings-note {
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+    padding: 12px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+/* 调整复选框样式 */
+.form-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* 让标签更突出 */
+.form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+/* 为了确保设置模态框中的下拉菜单不重叠，调整它们的布局 */
+.settings-form .form-group:nth-child(2) {
+    margin-bottom: 16px;
+    z-index: 25;
+}
+
+/* 语言选择框相关样式 */
+.settings-form .form-group:nth-child(3) {
+    margin-bottom: 16px;
+    z-index: 20;
+}
+
+/* 深色模式切换相关样式 */
+.settings-form .form-group:nth-child(4) {
+    margin-bottom: 20px;
+    z-index: 15;
+}
+
+/* 修复自定义选择器样式 */
+.custom-language-selector, 
+.custom-model-selector {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+}
+
+.custom-language-selector.open {
+    z-index: 30;
+}
+
+.custom-model-selector.open {
+    z-index: 20;
+}
+
+.language-select-header,
+.model-select-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: white;
+    height: 44px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.language-select-options,
+.model-select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.custom-language-selector.open .language-select-options,
+.custom-model-selector.open .model-select-options {
+    max-height: 200px;
+    opacity: 1;
+    visibility: visible;
+    margin-top: 4px;
+}
+
+/* 确保选择器样式不会被覆盖 */
+.select-container select {
+    display: none !important;
+}
+
+/* 自定义语言选择器样式 */
+.custom-language-selector {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+}
+
+.language-select-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: white;
+    height: 44px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 自定义模型选择器样式 */
+.custom-model-selector {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+}
+
+.model-select-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: white;
+    height: 44px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 模态框标题样式 */
+.modal-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 16px;
+}
+
+/* 设置说明文本样式 */
+.settings-note {
+    font-size: 14px;
+    color: var(--light-text-color);
+    text-align: center;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background-color: rgba(0, 0, 0, 0.03);
+    border: 1px dashed var(--border-color);
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
+.select-container {
+    position: relative;
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* 修复显示原生选择器 */
+.custom-language-selector + select,
+.custom-model-selector + select {
+    display: none;
+}
+
+.language-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.model-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.custom-language-selector.open .language-select-options,
+.custom-model-selector.open .model-select-options {
+    max-height: 200px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.language-option,
+.model-option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.language-option:hover,
+.model-option:hover {
+    background-color: var(--hover-color);
+}
+
+.language-option.selected,
+.model-option.selected {
+    background-color: rgba(0, 132, 255, 0.1);
+    color: var(--primary-color);
+}
+
+.language-select-arrow,
+.model-select-arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #888;
+    margin-left: 8px;
+}
+
+.custom-language-selector.open .language-select-arrow,
+.custom-model-selector.open .model-select-arrow {
+    transform: rotate(180deg);
+}
+
+.language-select-header-text,
+.model-select-header-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dark-mode .model-select-header,
+.dark-mode .language-select-header {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.dark-mode .language-select-options,
+.dark-mode .model-select-options {
+    background-color: #2d2d2d;
+    border-color: #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .language-option,
+.dark-mode .model-option {
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+.dark-mode .language-option:hover,
+.dark-mode .model-option:hover {
+    background-color: #3a3a3a;
+}
+
+.dark-mode .language-option.selected,
+.dark-mode .model-option.selected {
+    background-color: rgba(26, 145, 255, 0.2);
+    color: #1a91ff;
+}
+
+.dark-mode .settings-note {
+    background-color: #333;
+    color: #aaa;
+}
+
+.dark-mode .form-group label {
+    color: #e0e0e0;
+}
+
+.dark-mode .form-group input {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.dark-mode .language-select-arrow,
+.dark-mode .model-select-arrow {
+    border-top-color: #aaa;
+}
+
+/* 开关按钮样式 */
+.switch-container {
+    display: flex;
+    align-items: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-left: 8px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* 深色模式下的开关样式 */
+.dark-mode .slider {
+    background-color: #555;
+}
+
+.dark-mode .slider:before {
+    background-color: #ddd;
+}
+
+/* 深色模式下输入框样式 */
+.dark-mode #userInput {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+.dark-mode .input-container {
+    background-color: var(--sidebar-color);
+    border-top-color: var(--border-color);
+}
+
+/* 深色模式下模态框样式 */
+.dark-mode .modal-content {
+    background-color: #252526;
+    color: #e0e0e0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* 深色模式下的设置面板样式 */
+.dark-mode .close {
+    color: #aaa;
+}
+
+.dark-mode .close:hover {
+    color: #fff;
+}
+
+/* 深色模式下确认对话框样式 */
+.dark-mode .confirm-dialog {
+    background-color: #252526;
+    color: #e0e0e0;
+}
+
+.dark-mode .cancel-btn {
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+}
+
+.dark-mode .cancel-btn:hover {
+    background-color: #4a4a4a;
+}
+
+/* 修复深色模式下的自定义选择器 */
+.dark-mode .custom-model-selector .model-select-header,
+.dark-mode .custom-language-selector .language-select-header {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.dark-mode .custom-model-selector .model-select-options,
+.dark-mode .custom-language-selector .language-select-options {
+    background-color: #2d2d2d;
+    border-color: #444;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    margin-bottom: 24px;
+    position: relative;
 }
 
 .form-group label {
@@ -982,206 +1498,113 @@ body.hide-welcome .welcome-message {
     border-radius: var(--radius-md);
     font-size: 15px;
     color: var(--text-color);
-    background-color: white;
-    transition: all 0.2s ease;
 }
 
-.form-group input:hover {
-    border-color: var(--primary-color);
-    background-color: var(--background-color);
-}
-
-.form-group input:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.1);
-}
-
-.form-group small {
-    font-size: 13px;
-    color: var(--light-text-color);
-}
-
-.save-btn {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 12px;
-    transition: all 0.2s;
-}
-
-.save-btn:hover {
-    background-color: var(--secondary-color);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.save-btn:active {
-    transform: translateY(0);
-}
-
-/* 模态框标题样式 */
-.modal-content h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 24px;
-}
-
-/* 添加选择器容器样式 */
-.select-container {
-    position: relative;
-    width: 100%;
-}
-
-/* 添加自定义下拉箭头样式 */
-.select-container::after {
-    content: '';
+/* 模型选择器和语言选择器的位置调整 */
+.model-select-options,
+.language-select-options {
     position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid var(--text-color);
-    pointer-events: none;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
 }
 
-/* 登录界面样式 */
-.login-container {
+/* 主题切换过渡效果容器 */
+.theme-transition-effect {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--background-color);
-    z-index: 2000;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
 }
 
-.login-box {
-    background-color: white;
-    padding: 32px;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    width: 90%;
-    max-width: 400px;
-    animation: scaleIn 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* 设置更简单的过渡效果 */
+body {
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-.login-logo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 24px;
-    width: 100%;
+/* 删除复杂的深色模式动画 */
+@keyframes darkModeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
-.login-logo .logo-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0084ff, #0070e0);
-    border-radius: 12px;
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.3);
-    font-size: 28px;
-    line-height: 64px;
-    text-align: center;
-    padding: 0;
-    margin: 0;
+@keyframes darkModeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-.login-logo .logo-text {
-    font-size: 32px;
-    margin: 16px 0 0 0;
-    text-align: center;
-    line-height: 1;
+/* 欢迎页面深色模式样式 */
+.dark-mode .welcome-icon {
+    background: linear-gradient(135deg, #1a91ff, #1a7ad4);
+    box-shadow: 0 4px 12px rgba(26, 145, 255, 0.3);
 }
 
-.login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-}
-
-.login-form .form-group {
-    margin: 0;
-}
-
-.login-form label {
-    display: block;
-    margin-bottom: 8px;
+.dark-mode .welcome-message h2 {
     color: var(--text-color);
-    font-size: 15px;
-    font-weight: 500;
 }
 
-.login-form input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    transition: all 0.2s ease;
+.dark-mode .welcome-message p {
+    color: var(--light-text-color);
 }
 
-.login-form input:focus {
+.dark-mode .example-prompts h3 {
+    color: var(--text-color);
+}
+
+.dark-mode .prompt-btn {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .prompt-btn:hover {
+    background-color: #3a3a3a;
     border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.1);
-}
-
-.login-btn {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px;
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.login-btn:hover {
-    background-color: var(--secondary-color);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.login-btn:active {
-    transform: translateY(0);
+/* 深色模式下的删除按钮样式 */
+.dark-mode .delete-chat-btn {
+    background-color: #444;
+    color: #aaa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.login-error {
-    color: #ef4444;
-    font-size: 14px;
-    margin-top: -8px;
-    animation: fadeIn 0.3s ease-out;
+.dark-mode .delete-chat-btn:hover {
+    background-color: #e74c3c;
+    color: white;
 }
 
-/* 删除所有移动端适配相关的代码,保持桌面端的固定布局 */
-.toggle-sidebar-btn {
-    display: none !important;
+/* 深色模式下的思考消息样式 */
+.dark-mode .thinking-message .message-content {
+    background-color: #383838;
+    color: var(--text-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 24px;
-    padding: 8px;
-    background-color: white;
+/* 深色模式下的思考状态样式 */
+.dark-mode .thinking-status,
+.dark-mode .thinking-step,
+.dark-mode .thinking-toggle {
+    color: var(--light-text-color);
+}
+
+.dark-mode .thinking-toggle {
+    color: var(--primary-color);
 }

@@ -176,7 +176,7 @@ button:disabled {
     overflow: hidden;
 }
 
-/* 侧边栏样式 - 现代化设计 */
+/* 侧边栏样式 - 固定布局 */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--sidebar-color);
@@ -186,6 +186,8 @@ button:disabled {
     padding: 16px;
     overflow-y: auto;
     box-shadow: var(--shadow-sm);
+    position: relative;
+    height: 100vh;
 }
 
 .logo {
@@ -409,7 +411,7 @@ button:disabled {
     font-size: 16px;
 }
 
-/* 主内容区域样式 */
+/* 主内容区域固定样式 */
 .main-content {
     flex: 1;
     display: flex;
@@ -417,8 +419,11 @@ button:disabled {
     overflow: hidden;
     background-color: var(--background-color);
     position: relative;
+    height: 100vh;
+    margin-top: 0;
 }
 
+/* 确保聊天容器占满剩余空间 */
 .chat-container {
     flex: 1;
     overflow-y: auto;
@@ -1166,4 +1171,17 @@ body.hide-welcome .welcome-message {
     font-size: 14px;
     margin-top: -8px;
     animation: fadeIn 0.3s ease-out;
+}
+
+/* 删除所有移动端适配相关的代码,保持桌面端的固定布局 */
+.toggle-sidebar-btn {
+    display: none !important;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 8px;
+    background-color: white;
 }

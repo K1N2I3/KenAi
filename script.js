@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             apiKeyRequired: '请先在设置中配置 KenAi API 密钥',
             errorPrefix: '请求失败: ',
             thinking: '正在思考...',
-            version: 'KenAi v1.0'
+            version: 'KenAi v1.1'
         },
         en: {
             newChat: 'New Chat',
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
             apiKeyRequired: 'Please configure your KenAi API key in settings first',
             errorPrefix: 'Request failed: ',
             thinking: 'Thinking...',
-            version: 'KenAi v1.0'
+            version: 'KenAi v1.1'
         }
     };
 
@@ -197,6 +197,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 绑定所有事件监听器
     function bindEventListeners() {
+        // 删除侧边栏切换功能
+        const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+        if (toggleSidebarBtn) {
+            toggleSidebarBtn.style.display = 'none';
+        }
+
         // 输入框事件
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -402,12 +408,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = userInput.value.trim();
         if (!message || isWaitingForResponse) return;
         
-        // 检查API密钥
-        if (!settings.apiKey) {
-            alert(translations[currentLanguage].apiKeyRequired);
-            openSettings();
-            return;
-        }
+        // 检查是否是询问创建者的问题
+        const creatorQuestions = [
+            "who's your creator", 
+            "who is your creator", 
+            "who created you",
+            "who made you",
+            "your creator",
+            "who built you",
+            "who invented you",
+            "who is your daddy",
+            "who's your daddy"
+        ];
+        
+        // 检查是否是询问名字的问题
+        const nameQuestions = [
+            "what's your name",
+            "what is your name",
+            "your name",
+            "who are you",
+            "tell me your name",
+            "name"
+        ];
         
         // 立即隐藏欢迎消息
         document.body.classList.add('hide-welcome');
@@ -453,6 +475,65 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 滚动到底部
         scrollToBottom();
+        
+        // 检查是否是关于创建者的问题
+        const isCreatorQuestion = creatorQuestions.some(q => message.toLowerCase().includes(q.toLowerCase()));
+        
+        // 检查是否是关于名字的问题
+        const isNameQuestion = nameQuestions.some(q => message.toLowerCase().includes(q.toLowerCase()));
+        
+        if (isCreatorQuestion) {
+            // 直接添加自定义回复
+            const aiResponse = "I was created by Ken Lin. While there isn't a single 'inventor', there's one guy named Evan Rey Battiston gave the idea of KenAi, and then created me! Let me know if you'd like to know more! 😊";
+            
+            // 添加AI回复
+            const aiMessageElement = createMessageElement('ai', aiResponse);
+            messageGroup.appendChild(aiMessageElement);
+            
+            // 保存AI回复到对话历史
+            conversations[currentChatId].messages.push({
+                role: 'assistant',
+                content: aiResponse
+            });
+            saveConversations();
+            
+            // 更新聊天历史
+            updateChatHistory();
+            
+            // 滚动到底部
+            scrollToBottom();
+            return;
+        }
+        
+        if (isNameQuestion) {
+            // 直接添加自定义回复
+            const aiResponse = "My name is KenAi. How can I help you today?";
+            
+            // 添加AI回复
+            const aiMessageElement = createMessageElement('ai', aiResponse);
+            messageGroup.appendChild(aiMessageElement);
+            
+            // 保存AI回复到对话历史
+            conversations[currentChatId].messages.push({
+                role: 'assistant',
+                content: aiResponse
+            });
+            saveConversations();
+            
+            // 更新聊天历史
+            updateChatHistory();
+            
+            // 滚动到底部
+            scrollToBottom();
+            return;
+        }
+        
+        // 检查API密钥
+        if (!settings.apiKey) {
+            alert(translations[currentLanguage].apiKeyRequired);
+            openSettings();
+            return;
+        }
         
         // 添加"正在思考"消息
         const thinkingId = addThinkingMessage(messageGroup);

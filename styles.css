@@ -1608,3 +1608,136 @@ body {
 .dark-mode .thinking-toggle {
     color: var(--primary-color);
 }
+
+/* 登录界面样式 */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--background-color);
+}
+
+.login-box {
+    background-color: white;
+    border-radius: var(--radius-lg);
+    padding: 40px 50px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.login-logo .logo-icon {
+    width: 80px;
+    height:80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    border-radius: 24px;
+    color: white;
+    font-weight: 600;
+    font-size: 36px;
+    box-shadow: 0 6px 16px rgba(0, 132, 255, 0.3);
+    margin-bottom: 20px;
+}
+
+.login-logo .logo-text {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.login-form {
+    width: 100%;
+    margin-top: 16px;
+}
+
+.login-form .form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.login-form input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    transition: all 0.2s;
+}
+
+.login-form input::placeholder {
+    color: #aaa;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 132, 255, 0.15);
+}
+
+.login-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    width: 100%;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 5px;
+    transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 132, 255, 0.2);
+}
+
+/* 深色模式下的登录界面样式 */
+.dark-mode .login-box {
+    background-color: var(--sidebar-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .login-form input {
+    background-color: #2d2d2d;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+.dark-mode .login-form input::placeholder {
+    color: #888;
+}
+
+.dark-mode .login-form label {
+    color: var(--text-color);
+}
+
+.dark-mode .login-logo .logo-text {
+    color: var(--text-color);
+}

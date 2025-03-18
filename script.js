@@ -804,7 +804,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isCreatorQuestion) {
             // 直接添加自定义回复
-            const aiResponse = "I was created by Ken Lin. While there isn't a single 'inventor', there's one guy named Evan Rey Battiston gave the idea of KenAi, and then created me! Let me know if you'd like to know more! 😊";
+            const aiResponse = "I was created by Ken Lin. While there isn't a single 'inventor', there're two guys named Evan Rey Battiston and Leone Scappinello gave the idea of KenAi, and then created me! Let me know if you'd like to know more! 😊";
             
             // 添加AI回复
             const aiMessageElement = createMessageElement('ai', aiResponse);

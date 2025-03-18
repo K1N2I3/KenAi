@@ -108,33 +108,33 @@ function getTranslation(key) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM 已加载完成，应用修复');
     
-    // 加载保存的设置
-    const apiKey = localStorage.getItem('apiKey');
-    const apiBaseUrl = localStorage.getItem('apiBaseUrl');
-    const model = localStorage.getItem('model');
-    const language = localStorage.getItem('language');
-    
-    // 设置 API 密钥
-    const apiKeyInput = document.getElementById('apiKey');
-    if (apiKey && apiKeyInput) {
-        apiKeyInput.value = apiKey;
+    // 确保语言设置为中文
+    if (!localStorage.getItem('language')) {
+        localStorage.setItem('language', 'en');
     }
     
-    // 设置 API 基础 URL
-    const apiBaseUrlInput = document.getElementById('apiBaseUrl');
-    if (apiBaseUrl && apiBaseUrlInput) {
-        apiBaseUrlInput.value = apiBaseUrl;
+    // 设置API密钥
+    if (localStorage.getItem('apiKey')) {
+        document.getElementById('apiKey').value = localStorage.getItem('apiKey');
     }
     
-    // 设置模型
-    const modelSelectInput = document.getElementById('modelSelect');
-    if (model && modelSelectInput) {
-        modelSelectInput.value = model;
+    // 设置API基础URL
+    if (localStorage.getItem('apiBaseUrl')) {
+        document.getElementById('apiBaseUrl').value = localStorage.getItem('apiBaseUrl');
     }
     
-    // 设置语言
-    const languageSelectInput = document.getElementById('languageSelect');
-    if (language && languageSelectInput) {
-        languageSelectInput.value = language;
+    // 设置模型选择
+    if (localStorage.getItem('model')) {
+        document.getElementById('modelSelect').value = localStorage.getItem('model');
     }
+    
+    // 设置语言选择
+    const savedLanguage = localStorage.getItem('language') || 'en';
+    const languageSelect = document.getElementById('languageSelect');
+    if (languageSelect) {
+        languageSelect.value = savedLanguage;
+    }
+    
+    // 应用语言设置到UI
+    updateUILanguage();
 }); 

@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
         darkMode: localStorage.getItem('darkMode') === 'true' || false
     };
     
+    // 确保语言设置正确且一致
+    localStorage.setItem('language', settings.language);
+    
     // 清除可能存在的登录状态
     localStorage.removeItem('isLoggedIn');
     
@@ -159,6 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 添加全局点击事件处理
         setupGlobalClickHandler();
         
+        // 在iPad上增强点击事件
+        enhanceTouchEvents();
+        
         // 更新UI
         updateUILanguage();
         updateChatHistory();
@@ -184,6 +190,202 @@ document.addEventListener('DOMContentLoaded', function() {
                 return (conversations[b].createdAt || 0) - (conversations[a].createdAt || 0);
             });
             loadChat(chatIds[0]);
+        }
+    }
+
+    // 增强iPad和触摸设备上的按钮点击事件
+    function enhanceTouchEvents() {
+        // 检查是否是iPad或其他触摸设备
+        const isTablet = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isTablet) {
+            console.log('检测到iPad/触摸设备，增强触摸事件');
+            
+            // 增强所有按钮的触摸事件
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                // 添加触摸事件
+                btn.addEventListener('touchstart', function(e) {
+                    console.log('触摸开始:', this.className || this.id);
+                    // 添加按下状态的视觉反馈
+                    this.classList.add('touch-active');
+                    // 不阻止默认行为，否则可能导致后续点击失效
+                }, false);
+                
+                btn.addEventListener('touchend', function(e) {
+                    console.log('触摸结束:', this.className || this.id);
+                    // 移除按下状态
+                    this.classList.remove('touch-active');
+                    
+                    // 阻止默认行为和冒泡，确保不触发多次点击
+                    e.preventDefault();
+                    
+                    // 对于某些按钮，我们需要手动触发它们的点击事件
+                    if (this.id === 'sendBtn') {
+                        console.log('手动触发发送按钮点击');
+                        sendMessage();
+                    } else if (this.id === 'newChatBtn') {
+                        console.log('手动触发新对话按钮点击');
+                        createNewChat();
+                    } else if (this.id === 'settingsBtn') {
+                        console.log('手动触发设置按钮点击');
+                        openSettings();
+                    } else if (this.id === 'clearAllChats') {
+                        console.log('手动触发清空对话按钮点击');
+                        confirmClearAllChats();
+                    } else if (this.classList.contains('prompt-btn')) {
+                        console.log('手动触发示例提示按钮点击');
+                        const promptText = this.textContent.trim();
+                        if (userInput) {
+                            userInput.value = promptText;
+                            userInput.style.height = 'auto';
+                            userInput.style.height = userInput.scrollHeight + 'px';
+                            sendMessage();
+                        }
+                    } else if (this.classList.contains('delete-chat-btn')) {
+                        console.log('手动触发删除对话按钮点击');
+                        const chatId = this.closest('.chat-item').getAttribute('data-id');
+                        if (chatId) {
+                            confirmDeleteChat(chatId);
+                        }
+                    }
+                }, false);
+            });
+            
+            // 增强自定义选择器的触摸事件
+            document.addEventListener('DOMNodeInserted', function(e) {
+                if (e.target && (
+                    e.target.classList && (
+                        e.target.classList.contains('custom-language-selector') || 
+                        e.target.classList.contains('custom-model-selector')
+                    ) || 
+                    e.target.querySelector && (
+                        e.target.querySelector('.custom-language-selector') || 
+                        e.target.querySelector('.custom-model-selector')
+                    )
+                )) {
+                    console.log('检测到自定义选择器被添加，增强其触摸事件');
+                    
+                    // 增强语言选择器头部
+                    const langHeaders = document.querySelectorAll('.language-select-header');
+                    langHeaders.forEach(header => {
+                        header.addEventListener('touchend', function(e) {
+                            e.stopPropagation();
+                            const customSelector = this.closest('.custom-language-selector');
+                            if (customSelector) {
+                                // 关闭所有其他选择器
+                                document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(selector => {
+                                    if (selector !== customSelector) {
+                                        selector.classList.remove('open');
+                                    }
+                                });
+                                // 切换当前选择器
+                                customSelector.classList.toggle('open');
+                            }
+                        }, false);
+                    });
+                    
+                    // 增强模型选择器头部
+                    const modelHeaders = document.querySelectorAll('.model-select-header');
+                    modelHeaders.forEach(header => {
+                        header.addEventListener('touchend', function(e) {
+                            e.stopPropagation();
+                            const customSelector = this.closest('.custom-model-selector');
+                            if (customSelector) {
+                                // 关闭所有其他选择器
+                                document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(selector => {
+                                    if (selector !== customSelector) {
+                                        selector.classList.remove('open');
+                                    }
+                                });
+                                // 切换当前选择器
+                                customSelector.classList.toggle('open');
+                            }
+                        }, false);
+                    });
+                    
+                    // 增强语言选项
+                    const langOptions = document.querySelectorAll('.language-option');
+                    langOptions.forEach(option => {
+                        option.addEventListener('touchend', function(e) {
+                            e.stopPropagation();
+                            const customSelector = this.closest('.custom-language-selector');
+                            const headerText = customSelector.querySelector('.language-select-header-text');
+                            const langSelect = document.getElementById('languageSelect');
+                            
+                            // 更新选中状态
+                            document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+                            
+                            // 更新标题文本
+                            headerText.textContent = this.textContent;
+                            
+                            // 更新原生选择器的值
+                            if (langSelect) {
+                                // 找到匹配的选项
+                                const optionToSelect = [...langSelect.options].find(opt => opt.textContent === this.textContent);
+                                if (optionToSelect) {
+                                    langSelect.value = optionToSelect.value;
+                                    
+                                    // 触发change事件
+                                    const event = new Event('change');
+                                    langSelect.dispatchEvent(event);
+                                }
+                            }
+                            
+                            // 关闭选择器
+                            customSelector.classList.remove('open');
+                        }, false);
+                    });
+                    
+                    // 增强模型选项
+                    const modelOptions = document.querySelectorAll('.model-option');
+                    modelOptions.forEach(option => {
+                        option.addEventListener('touchend', function(e) {
+                            e.stopPropagation();
+                            const customSelector = this.closest('.custom-model-selector');
+                            const headerText = customSelector.querySelector('.model-select-header-text');
+                            const modelSelect = document.getElementById('modelSelect');
+                            
+                            // 更新选中状态
+                            document.querySelectorAll('.model-option').forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+                            
+                            // 更新标题文本
+                            headerText.textContent = this.textContent;
+                            
+                            // 更新原生选择器的值
+                            if (modelSelect) {
+                                // 找到匹配的选项
+                                const optionToSelect = [...modelSelect.options].find(opt => opt.textContent === this.textContent);
+                                if (optionToSelect) {
+                                    modelSelect.value = optionToSelect.value;
+                                    
+                                    // 触发change事件
+                                    const event = new Event('change');
+                                    modelSelect.dispatchEvent(event);
+                                }
+                            }
+                            
+                            // 关闭选择器
+                            customSelector.classList.remove('open');
+                        }, false);
+                    });
+                }
+            });
+            
+            // 修复聊天历史点击
+            const chatItems = document.querySelectorAll('.chat-item-container');
+            chatItems.forEach(item => {
+                item.addEventListener('touchend', function(e) {
+                    e.stopPropagation();
+                    const chatId = this.closest('.chat-item').getAttribute('data-id');
+                    if (chatId) {
+                        loadChat(chatId);
+                    }
+                }, false);
+            });
         }
     }
 

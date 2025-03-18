@@ -1923,3 +1923,98 @@ and (max-device-width: 1024px) {
         padding-bottom: env(safe-area-inset-bottom, 20px);
     }
 }
+
+/* 触摸设备增强样式 */
+@media (pointer: coarse) {
+    /* 增大按钮点击区域 */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 16px;
+        margin: 5px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent; /* 移除iOS默认的点击高亮 */
+    }
+    
+    /* 发送按钮触摸状态 */
+    #sendBtn.touch-active {
+        background-color: #065f46;
+        transform: scale(0.97);
+    }
+    
+    /* 新建对话按钮触摸状态 */
+    #newChatBtn.touch-active {
+        background-color: #16a34a;
+        transform: scale(0.97);
+    }
+    
+    /* 一般按钮触摸状态 */
+    button.touch-active {
+        opacity: 0.85;
+        transform: scale(0.97);
+    }
+    
+    /* 自定义选择器触摸优化 */
+    .custom-language-selector,
+    .custom-model-selector {
+        touch-action: manipulation;
+    }
+    
+    .language-select-header,
+    .model-select-header {
+        min-height: 44px;
+        padding: 10px;
+    }
+    
+    .language-option,
+    .model-option {
+        min-height: 44px;
+        padding: 12px 10px;
+    }
+    
+    /* 增强暗模式下的触摸反馈 */
+    .dark-mode button.touch-active {
+        background-color: #4b5563;
+    }
+    
+    .dark-mode #sendBtn.touch-active {
+        background-color: #064e3b;
+    }
+    
+    .dark-mode #newChatBtn.touch-active {
+        background-color: #15803d;
+    }
+    
+    /* 触摸时的过渡效果 */
+    button, 
+    .language-select-header,
+    .model-select-header,
+    .language-option,
+    .model-option {
+        transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.1s ease;
+    }
+}
+
+/* 修复iPad Safari特定的问题 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    /* 防止iPad上的文本缩放问题 */
+    input, select, textarea, button {
+        font-size: 16px; /* 避免Safari自动缩放 */
+    }
+    
+    /* 修复iPad上的滚动问题 */
+    .chat-history {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 修正触摸区域 */
+    .chat-history .message-container {
+        padding: 12px;
+    }
+    
+    /* 确保选择器下拉菜单更容易点击 */
+    .language-select-options,
+    .model-select-options {
+        max-height: 300px; /* 增大下拉区域 */
+    }
+}

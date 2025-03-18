@@ -32,33 +32,8 @@
     </style>
 </head>
 <body>
-    <!-- 登录界面 -->
-    <div id="loginContainer" class="login-container">
-        <div class="login-box">
-            <div class="login-logo">
-                <div class="logo-icon">K</div>
-                <h1 class="logo-text">KenAi</h1>
-            </div>
-            <form class="login-form" id="loginForm" onsubmit="return false;" autocomplete="off">
-                <div class="form-group">
-                    <label for="password">Enter Invitation Code</label>
-                    <input type="password" id="password" name="password" 
-                        placeholder="Enter Invitation Code" autocomplete="off" 
-                        autocorrect="off" autocapitalize="off" spellcheck="false" 
-                        autofocus>
-                </div>
-                <button type="button" id="loginBtn" class="login-btn" 
-                    ontouchstart="this.classList.add('active')" 
-                    ontouchend="this.classList.remove('active')"
-                    onclick="window.directLogin && window.directLogin()">
-                    Login
-                </button>
-            </form>
-        </div>
-    </div>
-
     <!-- 主应用容器 -->
-    <div id="appContainer" class="container" style="display: none;">
+    <div id="appContainer" class="container">
         <!-- 主题切换效果容器 -->
         <div class="theme-transition-effect" id="themeTransitionEffect"></div>
         

@@ -39,12 +39,20 @@
                 <div class="logo-icon">K</div>
                 <h1 class="logo-text">KenAi</h1>
             </div>
-            <form class="login-form" id="loginForm" onsubmit="return false;">
+            <form class="login-form" id="loginForm" onsubmit="return false;" autocomplete="off">
                 <div class="form-group">
                     <label for="password">Enter Invitation Code</label>
-                    <input type="password" id="password" placeholder="Enter Invitation Code" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <input type="password" id="password" name="password" 
+                        placeholder="Enter Invitation Code" autocomplete="off" 
+                        autocorrect="off" autocapitalize="off" spellcheck="false" 
+                        autofocus>
                 </div>
-                <button type="submit" id="loginBtn" class="login-btn">Login</button>
+                <button type="button" id="loginBtn" class="login-btn" 
+                    ontouchstart="this.classList.add('active')" 
+                    ontouchend="this.classList.remove('active')"
+                    onclick="window.directLogin && window.directLogin()">
+                    Login
+                </button>
             </form>
         </div>
     </div>

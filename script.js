@@ -10,8 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const loginContainer = document.getElementById('loginContainer');
     const appContainer = document.getElementById('appContainer');
+    const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const passwordInput = document.getElementById('password');
+    
+    // 记录调试信息
+    console.log('登录按钮元素:', loginBtn);
+    console.log('密码输入框元素:', passwordInput);
+    console.log('登录表单元素:', loginForm);
     
     // 设置密码
     const correctPassword = 'kenai160325';
@@ -26,99 +32,127 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             initializeApp();
         }, 100);
+    } else {
+        console.log('用户未登录，显示登录界面');
+        
+        // 确保登录界面可见
+        loginContainer.style.display = 'flex';
+        appContainer.style.display = 'none';
+        
+        // 确保密码输入框聚焦
+        setTimeout(() => {
+            if (passwordInput) {
+                passwordInput.focus();
+                console.log('聚焦到密码输入框');
+            }
+        }, 500);
     }
     
-    // 处理登录
-    function handleLogin() {
-        console.log('登录按钮点击事件触发');
-        const password = passwordInput.value;
-        
-        // 移除可能存在的错误提示
-        const existingError = document.querySelector('.login-error');
-        if (existingError) {
-            existingError.remove();
-        }
-        
-        // iPad上可能存在事件冒泡问题，记录输入内容
-        console.log('输入密码长度:', password.length);
-        
-        if (password === correctPassword) {
-            console.log('密码验证通过，正在登录...');
-            // 保存登录状态
-            localStorage.setItem('isLoggedIn', 'true');
-            loginContainer.style.display = 'none';
-            appContainer.style.display = 'flex';
-            // 登录成功后初始化应用
-            setTimeout(() => {
-                initializeApp();
-                // 重新计算视口高度
-                setViewportHeight();
-            }, 100);
-        } else {
-            console.log('密码验证失败');
-            // 显示错误信息
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'login-error';
-            errorDiv.textContent = 'Incorrect password, please try again';
-            passwordInput.parentNode.insertBefore(errorDiv, passwordInput.nextSibling);
+    // 在全局范围内定义handleLogin函数，方便通过onclick直接调用
+    window.directLogin = function() {
+        console.log('直接调用登录函数');
+        if (document.getElementById('password')) {
+            const password = document.getElementById('password').value;
+            const correctPassword = 'kenai160325';
             
-            // 清空密码输入框
-            passwordInput.value = '';
-            passwordInput.focus();
-        }
-    }
-    
-    // 初始化登录按钮事件
-    function initLoginEvents() {
-        console.log('初始化登录事件');
-        
-        // 获取登录表单
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            console.log('找到登录表单，添加提交事件');
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                console.log('表单提交事件触发');
-                handleLogin();
-            });
-        } else {
-            console.error('找不到登录表单!');
-        }
-        
-        if (loginBtn) {
-            // 使用不同的方式添加事件
-            loginBtn.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('登录按钮点击事件 - onclick');
-                handleLogin();
-            };
+            // 移除可能存在的错误提示
+            const existingError = document.querySelector('.login-error');
+            if (existingError) {
+                existingError.remove();
+            }
             
-            // 添加触摸事件支持
-            loginBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                console.log('登录按钮触摸事件 - touchend');
-                handleLogin();
-            }, false);
-        } else {
-            console.error('找不到登录按钮元素!');
-        }
-        
-        if (passwordInput) {
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    console.log('密码输入框按下回车键');
-                    handleLogin();
+            if (password === correctPassword) {
+                // 保存登录状态
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                // 修改界面显示
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                
+                // 初始化应用
+                setTimeout(function() {
+                    window.initializeApp && window.initializeApp();
+                    // 重新计算视口高度
+                    window.setViewportHeight && window.setViewportHeight();
+                }, 300);
+                
+                return true;
+            } else {
+                // 显示错误信息
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'login-error';
+                errorDiv.textContent = 'Incorrect password, please try again';
+                
+                const passwordInput = document.getElementById('password');
+                if (passwordInput && passwordInput.parentNode) {
+                    passwordInput.parentNode.insertBefore(errorDiv, passwordInput.nextSibling);
                 }
-            });
+                
+                // 清空密码输入框并聚焦
+                passwordInput.value = '';
+                passwordInput.focus();
+                
+                return false;
+            }
         } else {
-            console.error('找不到密码输入框元素!');
+            console.error('无法找到密码输入框');
+            return false;
         }
+    };
+    
+    // 使用多种方式绑定登录按钮事件
+    if (loginBtn) {
+        console.log('添加登录按钮点击事件');
+        
+        // 点击事件
+        loginBtn.addEventListener('click', function(e) {
+            console.log('登录按钮点击 - addEventListener click');
+            handleLogin(e);
+        });
+        
+        // 触摸结束事件
+        loginBtn.addEventListener('touchend', function(e) {
+            console.log('登录按钮触摸结束 - touchend');
+            handleLogin(e);
+        });
+        
+        // 直接设置onclick处理程序
+        loginBtn.onclick = function(e) {
+            console.log('登录按钮点击 - onclick属性');
+            handleLogin(e);
+        };
+    } else {
+        console.error('找不到登录按钮元素!');
     }
-
-    // 调用初始化登录事件
-    initLoginEvents();
+    
+    // 使用表单提交事件
+    if (loginForm) {
+        console.log('添加表单提交事件');
+        
+        loginForm.addEventListener('submit', function(e) {
+            console.log('表单提交 - submit事件');
+            handleLogin(e);
+        });
+    } else {
+        console.error('找不到登录表单元素!');
+    }
+    
+    // 为密码输入框添加回车键事件
+    if (passwordInput) {
+        console.log('添加密码输入框回车事件');
+        
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                console.log('密码输入框回车键按下');
+                handleLogin(e);
+            }
+        });
+        
+        // 设置autofocus属性
+        passwordInput.setAttribute('autofocus', 'autofocus');
+    } else {
+        console.error('找不到密码输入框元素!');
+    }
     
     // DOM 元素
     const chatContainer = document.getElementById('chatContainer');
@@ -1732,6 +1766,66 @@ document.addEventListener('DOMContentLoaded', function() {
                         `calc(env(safe-area-inset-bottom, 0px) + 10px)`;
                 }
             }
+        }
+    }
+
+    // 处理登录的核心函数
+    function handleLogin(e) {
+        // 阻止默认事件
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        console.log('开始处理登录请求...');
+        const password = passwordInput.value;
+        
+        console.log('输入的密码:', password);
+        console.log('期望的密码:', correctPassword);
+        
+        // 移除可能存在的错误提示
+        const existingError = document.querySelector('.login-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        if (password === correctPassword) {
+            console.log('密码验证通过，正在登录...');
+            // 保存登录状态
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            // 修改界面显示
+            loginContainer.style.display = 'none';
+            appContainer.style.display = 'flex';
+            
+            // 登录成功后初始化应用
+            setTimeout(() => {
+                initializeApp();
+                // 重新计算视口高度
+                setViewportHeight();
+            }, 300);
+        } else {
+            console.log('密码验证失败');
+            
+            // 显示错误信息
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'login-error';
+            errorDiv.textContent = 'Incorrect password, please try again';
+            
+            // 确保错误消息被添加到DOM
+            if (passwordInput.parentNode) {
+                passwordInput.parentNode.insertBefore(errorDiv, passwordInput.nextSibling);
+            } else {
+                console.error('无法添加错误消息，找不到父节点');
+                // 尝试添加到表单
+                if (loginForm) {
+                    loginForm.appendChild(errorDiv);
+                }
+            }
+            
+            // 清空密码输入框并聚焦
+            passwordInput.value = '';
+            passwordInput.focus();
         }
     }
 

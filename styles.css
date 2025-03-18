@@ -1988,3 +1988,76 @@ and (max-device-width: 1024px) {
         overflow: hidden;
     }
 }
+
+/* iPad聊天容器滚动修复 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .chat-container {
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 120px; /* 增加底部填充，确保可以看到最后的消息 */
+        height: auto;
+        max-height: calc(100vh - 150px); /* 调整高度，考虑输入区域的高度 */
+        overscroll-behavior: contain;
+        overflow-y: scroll; /* 使用scroll而不是auto可以提供更一致的体验 */
+    }
+    
+    /* 防止Chat容器的内容被输入框挡住 */
+    .input-container {
+        background-color: var(--sidebar-color);
+        z-index: 50;
+        padding-top: 10px;
+        padding-bottom: 10px; /* 确保输入框底部有足够空间 */
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed; /* 确保固定在底部 */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+    
+    /* 防止触摸滚动时弹回 */
+    .main-content {
+        position: relative;
+        overflow: hidden;
+        padding-bottom: 60px; /* 为输入框预留空间 */
+    }
+    
+    /* 确保消息组在iPad上正确显示 */
+    .message-group {
+        margin-bottom: 16px;
+        width: 100%;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* 针对iPad和iPhone的视口修复 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px), 
+       only screen and (min-device-width: 320px) and (max-device-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
+    /* 确保视口高度计算正确 */
+    :root {
+        --vh: 1vh;
+    }
+    
+    html, body {
+        height: 100%;
+        height: calc(var(--vh, 1vh) * 100);
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        left: 0;
+    }
+    
+    .main-content {
+        height: 100%;
+        height: calc(var(--vh, 1vh) * 100);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* 防止iOS底部安全区域问题 */
+    .input-container {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+}

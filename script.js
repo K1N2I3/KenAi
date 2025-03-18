@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM 加载完成，开始初始化...');
     
+    // 设置视口高度变量，解决iPad和移动设备上的视口问题
+    setViewportHeight();
+    
+    // 添加视口大小变化监听
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+    
     const loginContainer = document.getElementById('loginContainer');
     const appContainer = document.getElementById('appContainer');
     const loginBtn = document.getElementById('loginBtn');
@@ -804,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isCreatorQuestion) {
             // 直接添加自定义回复
-            const aiResponse = "I was created by Ken Lin. While there isn't a single 'inventor', there're two guys named Evan Rey Battiston and Leone Scappinello gave the idea of KenAi, and then created me! Let me know if you'd like to know more! 😊";
+            const aiResponse = "I was created by Ken Lin. While there isn't a single 'inventor', there's one guy named Evan Rey Battiston gave the idea of KenAi, and then created me! Let me know if you'd like to know more! 😊";
             
             // 添加AI回复
             const aiMessageElement = createMessageElement('ai', aiResponse);
@@ -1504,7 +1511,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 滚动到底部
     function scrollToBottom() {
+        // 立即滚动一次
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // 检测是否是iPad或平板设备
+        const isTablet = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isTablet) {
+            // 在iPad上，增加多次延迟滚动以确保滚动到底部
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+            
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 300);
+            
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 500);
+        }
     }
 
     // 生成唯一ID
@@ -1620,6 +1647,40 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('conversations');
         createNewChat();
         updateChatHistory();
+    }
+
+    // 设置准确的视口高度变量
+    function setViewportHeight() {
+        // 获取可视窗口的实际高度
+        let vh = window.innerHeight * 0.01;
+        // 设置CSS变量
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        
+        // 检测是否是iPad或平板设备
+        const isTablet = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isTablet) {
+            // 修复iPad上的滚动问题
+            scrollToBottom();
+            
+            // 修复输入区域的位置
+            const inputContainer = document.querySelector('.input-container');
+            if (inputContainer) {
+                inputContainer.style.position = 'fixed';
+                inputContainer.style.bottom = '0';
+                inputContainer.style.left = '0';
+                inputContainer.style.right = '0';
+                inputContainer.style.width = '100%';
+                inputContainer.style.zIndex = '100';
+                
+                // 考虑安全区域
+                if (window.visualViewport) {
+                    inputContainer.style.paddingBottom = 
+                        `calc(env(safe-area-inset-bottom, 0px) + 10px)`;
+                }
+            }
+        }
     }
 
     // 初始化应用

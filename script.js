@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
         darkMode: localStorage.getItem('darkMode') === 'true' || false
     };
     
+    // 修改默认语言为中文
+    settings.language = 'zh';
+    
     // 确保语言设置正确且一致
     localStorage.setItem('language', settings.language);
     
@@ -192,6 +195,22 @@ document.addEventListener('DOMContentLoaded', function() {
             loadChat(chatIds[0]);
         }
     }
+    
+    // 暴露关键函数到全局作用域，以便内联脚本能够访问它们
+    window.sendMessage = sendMessage;
+    window.createNewChat = createNewChat;
+    window.openSettings = openSettings;
+    window.closeSettings = closeSettings;
+    window.confirmClearAllChats = confirmClearAllChats;
+    window.confirmDeleteChat = confirmDeleteChat;
+    window.loadChat = loadChat;
+    window.initCustomLanguageSelector = initCustomLanguageSelector;
+    window.initCustomModelSelector = initCustomModelSelector;
+    window.updateCustomLanguageSelector = updateCustomLanguageSelector;
+    window.updateCustomModelSelector = updateCustomModelSelector;
+    window.applyDarkMode = applyDarkMode;
+    window.updateUILanguage = updateUILanguage;
+    window.enhanceTouchEvents = enhanceTouchEvents;
 
     // 增强iPad和触摸设备上的按钮点击事件
     function enhanceTouchEvents() {
@@ -210,8 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('触摸开始:', this.className || this.id);
                     // 添加按下状态的视觉反馈
                     this.classList.add('touch-active');
-                    // 不阻止默认行为，否则可能导致后续点击失效
-                }, false);
+                }, {passive: true});
                 
                 btn.addEventListener('touchend', function(e) {
                     console.log('触摸结束:', this.className || this.id);
@@ -250,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             confirmDeleteChat(chatId);
                         }
                     }
-                }, false);
+                }, {passive: false});
             });
             
             // 增强自定义选择器的触摸事件
@@ -283,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // 切换当前选择器
                                 customSelector.classList.toggle('open');
                             }
-                        }, false);
+                        }, {passive: false});
                     });
                     
                     // 增强模型选择器头部
@@ -302,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // 切换当前选择器
                                 customSelector.classList.toggle('open');
                             }
-                        }, false);
+                        }, {passive: false});
                     });
                     
                     // 增强语言选项
@@ -336,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             // 关闭选择器
                             customSelector.classList.remove('open');
-                        }, false);
+                        }, {passive: false});
                     });
                     
                     // 增强模型选项
@@ -370,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             // 关闭选择器
                             customSelector.classList.remove('open');
-                        }, false);
+                        }, {passive: false});
                     });
                 }
             });
@@ -384,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (chatId) {
                         loadChat(chatId);
                     }
-                }, false);
+                }, {passive: false});
             });
         }
     }

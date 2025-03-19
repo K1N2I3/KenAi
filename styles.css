@@ -2084,3 +2084,145 @@ and (max-device-width: 1024px) {
         padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
 }
+
+/* iPad 专用按钮样式优化 */
+@supports (-webkit-touch-callout: none) {
+    /* 确保按钮有充足的点击区域 */
+    button {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 10px 16px;
+        -webkit-tap-highlight-color: transparent; /* 移除默认点击高亮 */
+        -webkit-touch-callout: none; /* 禁用长按菜单 */
+        -webkit-user-select: none; /* 禁用选择 */
+        user-select: none;
+        touch-action: manipulation; /* 针对触摸事件优化 */
+        position: relative; /* 允许z-index生效 */
+        z-index: 5; /* 确保按钮在上层 */
+        cursor: pointer !important;
+    }
+
+    /* 按钮悬停与激活状态改进 */
+    .touch-active {
+        opacity: 0.7;
+        transform: scale(0.97);
+        transition: all 0.1s ease-in-out !important;
+    }
+
+    /* 确保发送按钮可见并易于点击 */
+    #sendBtn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 12px;
+        font-size: 18px;
+        background: linear-gradient(135deg, #0084ff, #0070e0);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 132, 255, 0.3);
+        cursor: pointer !important;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* 设置按钮优化 */
+    #settingsBtn, #newChatBtn {
+        padding: 12px 16px;
+        border-radius: 8px;
+        z-index: 10;
+        position: relative;
+        cursor: pointer !important;
+    }
+
+    /* 修复示例提示按钮 */
+    .prompt-btn {
+        padding: 14px 16px !important;
+        margin: 8px 0 !important;
+        border-radius: 12px !important;
+        font-size: 16px !important;
+        position: relative !important;
+        z-index: 20 !important;
+        cursor: pointer !important;
+        background-color: white !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.2s ease !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+    }
+
+    /* 确保示例提示按钮有交互反馈 */
+    .prompt-btn:active {
+        transform: scale(0.98);
+        opacity: 0.8;
+        background-color: #f0f0f0 !important;
+    }
+
+    /* 删除按钮优化 */
+    .delete-chat-btn {
+        width: 30px !important;
+        height: 30px !important;
+        padding: 0 !important;
+        z-index: 20 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+
+    /* 修正聊天项样式，确保可点击 */
+    .chat-item-container {
+        padding: 10px !important;
+        cursor: pointer !important;
+        z-index: 5 !important;
+        position: relative !important;
+    }
+
+    /* 优化选择器交互 */
+    .language-select-header, .model-select-header {
+        height: 44px !important;
+        padding: 0 16px !important;
+        cursor: pointer !important;
+        z-index: 15 !important;
+        position: relative !important;
+    }
+
+    /* 确保选项元素可点击 */
+    .language-option, .model-option {
+        padding: 12px 16px !important;
+        min-height: 44px !important;
+        cursor: pointer !important;
+    }
+
+    /* 增强滚动体验 */
+    .chat-container, .chat-history {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+    }
+
+    /* 修复模态框关闭按钮 */
+    .close {
+        padding: 12px !important;
+        font-size: 28px !important;
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 1100 !important;
+        cursor: pointer !important;
+    }
+}
+
+/* 触摸反馈支持 */
+@supports (hover: none) {
+    button:active, 
+    .prompt-btn:active,
+    .language-select-header:active,
+    .model-select-header:active,
+    .language-option:active,
+    .model-option:active,
+    .chat-item-container:active,
+    .delete-chat-btn:active {
+        opacity: 0.7;
+        transform: scale(0.97);
+    }
+}

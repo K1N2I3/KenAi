@@ -180,5 +180,161 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- iPad触摸事件修复脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('iPad触摸事件修复脚本已加载');
+            
+            // 直接处理所有按钮
+            setTimeout(function() {
+                const allButtons = document.querySelectorAll('button');
+                console.log('找到按钮数量:', allButtons.length);
+                
+                allButtons.forEach(function(btn) {
+                    // 移除现有事件
+                    btn.removeEventListener('click', btn.clickHandler);
+                    
+                    // 添加新的点击处理函数
+                    btn.clickHandler = function(e) {
+                        console.log('按钮被点击:', this.id || this.className);
+                        
+                        // 触发特定按钮的操作
+                        if (this.id === 'sendBtn') {
+                            console.log('触发发送按钮');
+                            if (window.sendMessage) window.sendMessage();
+                        } else if (this.id === 'newChatBtn') {
+                            console.log('触发新对话按钮');
+                            if (window.createNewChat) window.createNewChat();
+                        } else if (this.id === 'settingsBtn') {
+                            console.log('触发设置按钮');
+                            if (window.openSettings) window.openSettings();
+                        } else if (this.id === 'clearAllChats') {
+                            console.log('触发清空对话按钮');
+                            if (window.confirmClearAllChats) window.confirmClearAllChats();
+                        } else if (this.classList.contains('prompt-btn')) {
+                            console.log('触发示例提示按钮');
+                            const promptText = this.textContent.trim();
+                            const userInput = document.getElementById('userInput');
+                            if (userInput) {
+                                userInput.value = promptText;
+                                userInput.style.height = 'auto';
+                                userInput.style.height = userInput.scrollHeight + 'px';
+                                if (window.sendMessage) window.sendMessage();
+                            }
+                        } else if (this.classList.contains('delete-chat-btn')) {
+                            console.log('触发删除对话按钮');
+                            const chatId = this.closest('.chat-item').getAttribute('data-id');
+                            if (chatId && window.confirmDeleteChat) window.confirmDeleteChat(chatId);
+                        }
+                    };
+                    
+                    // 使用事件捕获来确保事件首先被处理
+                    btn.addEventListener('click', btn.clickHandler, {capture: true});
+                    
+                    // 添加触摸事件
+                    btn.addEventListener('touchstart', function(e) {
+                        console.log('按钮触摸开始:', this.id || this.className);
+                        this.classList.add('touch-active');
+                    }, {passive: false});
+                    
+                    btn.addEventListener('touchend', function(e) {
+                        console.log('按钮触摸结束:', this.id || this.className);
+                        this.classList.remove('touch-active');
+                        e.preventDefault();
+                        
+                        // 主动触发点击事件
+                        if (this.clickHandler) {
+                            this.clickHandler(e);
+                        }
+                    }, {passive: false});
+                });
+                
+                // 暴露函数到全局作用域，使其可访问
+                window.sendMessage = window.sendMessage || function() {
+                    console.log('尝试执行sendMessage函数');
+                    const event = new Event('send-message');
+                    document.dispatchEvent(event);
+                };
+                
+                window.createNewChat = window.createNewChat || function() {
+                    console.log('尝试执行createNewChat函数');
+                    const event = new Event('create-new-chat');
+                    document.dispatchEvent(event);
+                };
+                
+                window.openSettings = window.openSettings || function() {
+                    console.log('尝试执行openSettings函数');
+                    const settingsModal = document.getElementById('settingsModal');
+                    if (settingsModal) settingsModal.style.display = 'block';
+                };
+                
+                document.addEventListener('send-message', function() {
+                    const sendBtnClickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    const sendBtn = document.getElementById('sendBtn');
+                    if (sendBtn) sendBtn.dispatchEvent(sendBtnClickEvent);
+                });
+                
+                document.addEventListener('create-new-chat', function() {
+                    const newChatBtnClickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    const newChatBtn = document.getElementById('newChatBtn');
+                    if (newChatBtn) newChatBtn.dispatchEvent(newChatBtnClickEvent);
+                });
+                
+                // 为动态添加的元素添加触摸事件
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                            for (let i = 0; i < mutation.addedNodes.length; i++) {
+                                const node = mutation.addedNodes[i];
+                                if (node.nodeType === 1) { // 元素节点
+                                    const buttons = node.querySelectorAll('button');
+                                    if (buttons.length > 0) {
+                                        console.log('发现新添加的按钮:', buttons.length);
+                                        buttons.forEach(function(btn) {
+                                            // 为新按钮添加触摸事件
+                                            btn.addEventListener('touchstart', function(e) {
+                                                console.log('新按钮触摸开始:', this.id || this.className);
+                                                this.classList.add('touch-active');
+                                            }, {passive: false});
+                                            
+                                            btn.addEventListener('touchend', function(e) {
+                                                console.log('新按钮触摸结束:', this.id || this.className);
+                                                this.classList.remove('touch-active');
+                                                e.preventDefault();
+                                                
+                                                // 模拟点击事件
+                                                const clickEvent = new MouseEvent('click', {
+                                                    bubbles: true,
+                                                    cancelable: true,
+                                                    view: window
+                                                });
+                                                this.dispatchEvent(clickEvent);
+                                            }, {passive: false});
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                // 监听DOM变化
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+                
+            }, 1000); // 延迟1秒确保页面完全加载
+        });
+    </script>
 </body>
 </html> 

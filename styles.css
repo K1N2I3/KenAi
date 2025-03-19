@@ -1926,95 +1926,161 @@ and (max-device-width: 1024px) {
 
 /* 触摸设备增强样式 */
 @media (pointer: coarse) {
-    /* 增大按钮点击区域 */
-    button {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 10px 16px;
-        margin: 5px;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent; /* 移除iOS默认的点击高亮 */
+    /* 通用触摸样式 */
+    * {
+        -webkit-tap-highlight-color: transparent;
     }
     
-    /* 发送按钮触摸状态 */
-    #sendBtn.touch-active {
-        background-color: #065f46;
-        transform: scale(0.97);
-    }
-    
-    /* 新建对话按钮触摸状态 */
-    #newChatBtn.touch-active {
-        background-color: #16a34a;
-        transform: scale(0.97);
-    }
-    
-    /* 一般按钮触摸状态 */
-    button.touch-active {
-        opacity: 0.85;
-        transform: scale(0.97);
-    }
-    
-    /* 自定义选择器触摸优化 */
-    .custom-language-selector,
-    .custom-model-selector {
-        touch-action: manipulation;
-    }
-    
-    .language-select-header,
-    .model-select-header {
-        min-height: 44px;
-        padding: 10px;
-    }
-    
-    .language-option,
-    .model-option {
-        min-height: 44px;
-        padding: 12px 10px;
-    }
-    
-    /* 增强暗模式下的触摸反馈 */
-    .dark-mode button.touch-active {
-        background-color: #4b5563;
-    }
-    
-    .dark-mode #sendBtn.touch-active {
-        background-color: #064e3b;
-    }
-    
-    .dark-mode #newChatBtn.touch-active {
-        background-color: #15803d;
-    }
-    
-    /* 触摸时的过渡效果 */
-    button, 
+    /* 增强触摸反馈 */
+    button,
     .language-select-header,
     .model-select-header,
     .language-option,
+    .model-option,
+    .chat-item-container,
+    .delete-chat-btn {
+        touch-action: manipulation;
+        cursor: pointer;
+    }
+    
+    /* 触摸时的视觉反馈 */
+    .touch-active,
+    button.touch-active,
+    .language-select-header.touch-active,
+    .model-select-header.touch-active,
+    .language-option.touch-active,
+    .model-option.touch-active {
+        opacity: 0.7;
+        transform: scale(0.97);
+        transition: transform 0.1s ease, opacity 0.1s ease;
+    }
+    
+    /* 确保点击区域足够大 */
+    button, 
+    .language-select-header,
+    .model-select-header {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px;
+    }
+    
+    .language-option,
     .model-option {
-        transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.1s ease;
+        min-height: 44px;
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    /* 确保足够的间距，避免误触 */
+    .language-select-options,
+    .model-select-options {
+        padding: 8px 0;
+    }
+    
+    /* 提高z-index确保选择器在最上层 */
+    .custom-language-selector.open,
+    .custom-model-selector.open {
+        z-index: 1000 !important;
+    }
+    
+    /* 设置过渡效果，使UI反应更流畅 */
+    .custom-language-selector.open .language-select-options,
+    .custom-model-selector.open .model-select-options {
+        transform: translateY(0);
+        opacity: 1;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    
+    /* 初始状态下的过渡准备 */
+    .language-select-options,
+    .model-select-options {
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: transform 0.2s ease, opacity 0.2s ease;
     }
 }
 
-/* 修复iPad Safari特定的问题 */
+/* iPad 特定优化 */
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-    /* 防止iPad上的文本缩放问题 */
+    /* 修复输入和按钮大小问题 */
     input, select, textarea, button {
-        font-size: 16px; /* 避免Safari自动缩放 */
+        font-size: 16px; /* 防止iOS自动缩放 */
     }
     
-    /* 修复iPad上的滚动问题 */
+    /* 增强滚动体验 */
+    .chat-container,
     .chat-history {
         -webkit-overflow-scrolling: touch;
     }
     
-    /* 修正触摸区域 */
-    .chat-history .message-container {
-        padding: 12px;
+    /* 确保消息容器有足够空间 */
+    .message-container {
+        padding: 15px;
     }
     
-    /* 确保选择器下拉菜单更容易点击 */
-    .language-select-options,
-    .model-select-options {
-        max-height: 300px; /* 增大下拉区域 */
+    /* 改善对话历史点击体验 */
+    .chat-item {
+        padding: 15px;
+        margin: 5px 0;
+    }
+    
+    /* 修复设置模态框在iPad上的显示 */
+    .modal-content {
+        max-width: 90%;
+        max-height: 80vh;
+        padding: 20px;
+    }
+}
+
+/* 高DPI设备的清晰渲染 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* 确保边框和细节在高分辨率屏幕上清晰 */
+    .chat-item,
+    .message-content,
+    .modal-content,
+    button,
+    input,
+    .language-select-header,
+    .model-select-header {
+        border-width: 0.5px;
+    }
+    
+    /* 提高文本清晰度 */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* 横屏模式优化 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
+    /* 调整布局以适应横屏 */
+    .container {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .sidebar {
+        width: 30%;
+        max-width: 300px;
+    }
+    
+    .main-content {
+        width: 70%;
+        flex-grow: 1;
+    }
+}
+
+/* 修复iOS Safari的安全区域问题 */
+@supports (padding: max(0px)) {
+    .container,
+    .modal-content,
+    .input-container {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+    }
+    
+    .input-container {
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
 }

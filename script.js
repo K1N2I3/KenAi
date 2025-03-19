@@ -423,29 +423,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-            if (this.scrollHeight < 50) {
-                this.style.height = '50px';
-            }
-            if (this.scrollHeight > 200) {
-                this.style.height = '200px';
-                this.style.overflowY = 'auto';
-            } else {
-                this.style.overflowY = 'hidden';
-            }
-        });
-
+    userInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        if (this.scrollHeight < 50) {
+            this.style.height = '50px';
+        }
+        if (this.scrollHeight > 200) {
+            this.style.height = '200px';
+            this.style.overflowY = 'auto';
+        } else {
+            this.style.overflowY = 'hidden';
+        }
+    });
+    
         // 按钮事件
         sendBtn.addEventListener('click', sendMessage);
         newChatBtn.addEventListener('click', createNewChat);
         settingsBtn.addEventListener('click', openSettings);
         closeModalBtn.addEventListener('click', closeSettings);
         
-        if (clearAllChatsBtn) {
-            clearAllChatsBtn.addEventListener('click', confirmClearAllChats);
-        }
+    if (clearAllChatsBtn) {
+        clearAllChatsBtn.addEventListener('click', confirmClearAllChats);
+    }
 
         // 语言切换
         if (languageSelect) {
@@ -512,8 +512,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
-    // 加载设置
+        
+        // 加载设置
     function loadSettings() {
         if (settings.apiKey) {
             apiKeyInput.value = settings.apiKey;
@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const optionText = option.textContent;
             if (optionText === selectedOption.textContent) {
                 option.classList.add('selected');
-            } else {
+        } else {
                 option.classList.remove('selected');
             }
         });
@@ -1163,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (typeof hljs !== 'undefined') {
                     messageContent.querySelectorAll('pre code').forEach(block => {
                         try {
-                            hljs.highlightElement(block);
+            hljs.highlightElement(block);
                         } catch (e) {
                             console.error('代码高亮失败:', e);
                         }
@@ -1457,7 +1457,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         // 重新尝试保存
-                        localStorage.setItem('conversations', JSON.stringify(conversations));
+        localStorage.setItem('conversations', JSON.stringify(conversations));
                         console.log('已清理旧对话并重新保存');
                     }
                 } catch (cleanupError) {
@@ -1588,20 +1588,20 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.classList.add('hide-welcome');
             
             // 显示现有消息
-            let currentMessageGroup = null;
-            let lastRole = null;
-            
+        let currentMessageGroup = null;
+        let lastRole = null;
+        
             chat.messages.forEach(message => {
-                if (message.role !== lastRole) {
-                    currentMessageGroup = document.createElement('div');
-                    currentMessageGroup.className = 'message-group';
-                    chatContainer.appendChild(currentMessageGroup);
-                    lastRole = message.role;
-                }
-                
-                const messageElement = createMessageElement(message.role, message.content);
+            if (message.role !== lastRole) {
+                currentMessageGroup = document.createElement('div');
+                currentMessageGroup.className = 'message-group';
+                chatContainer.appendChild(currentMessageGroup);
+                lastRole = message.role;
+            }
+            
+            const messageElement = createMessageElement(message.role, message.content);
                 if (currentMessageGroup) {
-                    currentMessageGroup.appendChild(messageElement);
+            currentMessageGroup.appendChild(messageElement);
                 }
             });
         }

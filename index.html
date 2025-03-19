@@ -73,8 +73,8 @@
                 <button class="toggle-sidebar-btn" id="toggleSidebarBtn">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="logo">
-                    <div class="logo-icon">K</div>
+            <div class="logo">
+                <div class="logo-icon">K</div>
                     <div class="logo-text">KenAi</div>
                 </div>
             </div>
@@ -143,11 +143,11 @@
                 <div class="form-group">
                     <label for="modelSelect" id="modelSelectLabel">模型选择</label>
                     <div class="select-container">
-                        <select id="modelSelect">
+                    <select id="modelSelect">
                             <option value="deepseek-chat">KenAi 通用模型</option>
                             <option value="deepseek-coder">KenAi 编程模型</option>
                             <option value="deepseek-reasoner">KenAi 推理模型</option>
-                        </select>
+                    </select>
                     </div>
                 </div>
                 <!-- 隐藏 API Base URL 设置 -->
@@ -159,11 +159,11 @@
                 <div class="form-group">
                     <label for="languageSelect" id="languageSelectLabel">语言 / Language</label>
                     <div class="select-container">
-                        <select id="languageSelect">
-                            <option value="zh">中文</option>
-                            <option value="en">English</option>
-                        </select>
-                    </div>
+                    <select id="languageSelect">
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
                 </div>
                 <div class="form-group">
                     <label for="darkModeSwitch" id="darkModeLabel">Dark Mode</label>
@@ -191,134 +191,357 @@
                 const allButtons = document.querySelectorAll('button');
                 console.log('找到按钮数量:', allButtons.length);
                 
+                // 直接为每个按钮添加原始点击处理程序的引用
+                if (window.sendMessage) console.log('sendMessage函数已找到');
+                if (window.createNewChat) console.log('createNewChat函数已找到');
+                if (window.openSettings) console.log('openSettings函数已找到');
+                if (window.confirmClearAllChats) console.log('confirmClearAllChats函数已找到');
+                
                 allButtons.forEach(function(btn) {
-                    // 移除现有事件
-                    btn.removeEventListener('click', btn.clickHandler);
+                    // 移除现有事件处理程序
+                    if (btn.clickHandler) {
+                        btn.removeEventListener('click', btn.clickHandler);
+                        btn.removeEventListener('touchend', btn.touchEndHandler);
+                    }
                     
-                    // 添加新的点击处理函数
+                    // 直接绑定原始函数
                     btn.clickHandler = function(e) {
-                        console.log('按钮被点击:', this.id || this.className);
+                        console.log('按钮点击被激活:', this.id || this.className);
                         
-                        // 触发特定按钮的操作
                         if (this.id === 'sendBtn') {
-                            console.log('触发发送按钮');
-                            if (window.sendMessage) window.sendMessage();
+                            console.log('直接调用发送消息函数');
+                            try {
+                                // 尝试直接调用原始函数
+                                if (typeof sendMessage === 'function') {
+                                    sendMessage();
+                                } else if (window.sendMessage) {
+                                    window.sendMessage();
+                                } else {
+                                    // 如果函数不可用，尝试提交表单
+                                    const userInput = document.getElementById('userInput');
+                                    if (userInput && userInput.value.trim()) {
+                                        // 模拟提交操作
+                                        const event = new Event('submit-message');
+                                        document.dispatchEvent(event);
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('调用sendMessage失败:', err);
+                            }
                         } else if (this.id === 'newChatBtn') {
-                            console.log('触发新对话按钮');
-                            if (window.createNewChat) window.createNewChat();
+                            console.log('直接调用新对话函数');
+                            try {
+                                if (typeof createNewChat === 'function') {
+                                    createNewChat();
+                                } else if (window.createNewChat) {
+                                    window.createNewChat();
+                                }
+                            } catch (err) {
+                                console.error('调用createNewChat失败:', err);
+                            }
                         } else if (this.id === 'settingsBtn') {
-                            console.log('触发设置按钮');
-                            if (window.openSettings) window.openSettings();
+                            console.log('直接调用设置函数');
+                            try {
+                                if (typeof openSettings === 'function') {
+                                    openSettings();
+                                } else if (window.openSettings) {
+                                    window.openSettings();
+                                } else {
+                                    // 如果函数不可用，尝试直接显示模态框
+                                    const settingsModal = document.getElementById('settingsModal');
+                                    if (settingsModal) {
+                                        settingsModal.style.display = 'block';
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('调用openSettings失败:', err);
+                                const settingsModal = document.getElementById('settingsModal');
+                                if (settingsModal) {
+                                    settingsModal.style.display = 'block';
+                                }
+                            }
                         } else if (this.id === 'clearAllChats') {
-                            console.log('触发清空对话按钮');
-                            if (window.confirmClearAllChats) window.confirmClearAllChats();
+                            console.log('直接调用清空对话函数');
+                            try {
+                                if (typeof confirmClearAllChats === 'function') {
+                                    confirmClearAllChats();
+                                } else if (window.confirmClearAllChats) {
+                                    window.confirmClearAllChats();
+                                }
+                            } catch (err) {
+                                console.error('调用confirmClearAllChats失败:', err);
+                            }
                         } else if (this.classList.contains('prompt-btn')) {
-                            console.log('触发示例提示按钮');
+                            console.log('处理示例提示按钮');
                             const promptText = this.textContent.trim();
                             const userInput = document.getElementById('userInput');
                             if (userInput) {
                                 userInput.value = promptText;
                                 userInput.style.height = 'auto';
                                 userInput.style.height = userInput.scrollHeight + 'px';
-                                if (window.sendMessage) window.sendMessage();
+                                
+                                // 调用发送函数
+                                try {
+                                    if (typeof sendMessage === 'function') {
+                                        sendMessage();
+                                    } else if (window.sendMessage) {
+                                        window.sendMessage();
+                                    }
+                                } catch (err) {
+                                    console.error('调用sendMessage失败:', err);
+                                }
                             }
                         } else if (this.classList.contains('delete-chat-btn')) {
-                            console.log('触发删除对话按钮');
+                            console.log('处理删除对话按钮');
                             const chatId = this.closest('.chat-item').getAttribute('data-id');
-                            if (chatId && window.confirmDeleteChat) window.confirmDeleteChat(chatId);
+                            if (chatId) {
+                                try {
+                                    if (typeof confirmDeleteChat === 'function') {
+                                        confirmDeleteChat(chatId);
+                                    } else if (window.confirmDeleteChat) {
+                                        window.confirmDeleteChat(chatId);
+                                    }
+                                } catch (err) {
+                                    console.error('调用confirmDeleteChat失败:', err);
+                                }
+                            }
                         }
                     };
                     
-                    // 使用事件捕获来确保事件首先被处理
-                    btn.addEventListener('click', btn.clickHandler, {capture: true});
+                    // 为所有按钮添加点击事件
+                    btn.addEventListener('click', btn.clickHandler, true);
                     
-                    // 添加触摸事件
-                    btn.addEventListener('touchstart', function(e) {
-                        console.log('按钮触摸开始:', this.id || this.className);
-                        this.classList.add('touch-active');
-                    }, {passive: false});
-                    
-                    btn.addEventListener('touchend', function(e) {
-                        console.log('按钮触摸结束:', this.id || this.className);
-                        this.classList.remove('touch-active');
+                    // 添加触摸事件处理程序
+                    btn.touchEndHandler = function(e) {
+                        console.log('触摸结束，执行点击操作:', this.id || this.className);
                         e.preventDefault();
+                        e.stopPropagation();
                         
-                        // 主动触发点击事件
-                        if (this.clickHandler) {
-                            this.clickHandler(e);
+                        // 直接执行相同的点击处理程序
+                        if (btn.clickHandler) {
+                            btn.clickHandler.call(this, e);
                         }
-                    }, {passive: false});
+                    };
+                    
+                    btn.addEventListener('touchstart', function(e) {
+                        console.log('触摸开始:', this.id || this.className);
+                        this.classList.add('touch-active');
+                    }, false);
+                    
+                    btn.addEventListener('touchend', btn.touchEndHandler, false);
                 });
                 
-                // 暴露函数到全局作用域，使其可访问
-                window.sendMessage = window.sendMessage || function() {
-                    console.log('尝试执行sendMessage函数');
-                    const event = new Event('send-message');
-                    document.dispatchEvent(event);
-                };
+                // 特殊处理发送按钮，确保它始终正常工作
+                const sendButton = document.getElementById('sendBtn');
+                if (sendButton) {
+                    // 移除旧的事件监听器
+                    sendButton.removeEventListener('click', sendButton.clickHandler);
+                    sendButton.removeEventListener('touchend', sendButton.touchEndHandler);
+                    
+                    // 定义一个特殊的发送消息函数
+                    const doSendMessage = function() {
+                        console.log('执行特殊发送消息操作');
+                        const userInput = document.getElementById('userInput');
+                        
+                        if (userInput && userInput.value.trim()) {
+                            try {
+                                // 尝试以下所有可能的方法来发送消息
+                                if (typeof sendMessage === 'function') {
+                                    sendMessage();
+                                } else if (window.sendMessage) {
+                                    window.sendMessage();
+                                } else {
+                                    // 找到chatContainer然后手动添加消息
+                                    const chatContainer = document.getElementById('chatContainer');
+                                    if (chatContainer) {
+                                        // 隐藏欢迎消息
+                                        document.body.classList.add('hide-welcome');
+                                        
+                                        // 创建用户消息组
+                                        const messageGroup = document.createElement('div');
+                                        messageGroup.className = 'message-group';
+                                        
+                                        // 创建用户消息
+                                        const userMessage = document.createElement('div');
+                                        userMessage.className = 'message user-message';
+                                        
+                                        // 创建头像
+                                        const avatar = document.createElement('div');
+                                        avatar.className = 'avatar user-avatar';
+                                        avatar.textContent = '你';
+                                        
+                                        // 创建消息内容
+                                        const messageContent = document.createElement('div');
+                                        messageContent.className = 'message-content';
+                                        messageContent.textContent = userInput.value;
+                                        
+                                        // 组装消息
+                                        userMessage.appendChild(avatar);
+                                        userMessage.appendChild(messageContent);
+                                        messageGroup.appendChild(userMessage);
+                                        
+                                        // 添加到聊天容器
+                                        chatContainer.appendChild(messageGroup);
+                                        
+                                        // 如果可以，添加AI回复
+                                        if (window.createAIMessage) {
+                                            setTimeout(function() {
+                                                window.createAIMessage('我收到了您的消息："' + userInput.value + '"。正在思考回复...');
+                                            }, 500);
+                                        }
+                                        
+                                        // 清空输入框
+                                        userInput.value = '';
+                                        userInput.style.height = 'auto';
+                                        
+                                        // 滚动到底部
+                                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('发送消息失败:', err);
+                                alert('发送消息失败: ' + err.message);
+                            }
+                        }
+                    };
+                    
+                    // 专门为发送按钮设置处理程序
+                    sendButton.addEventListener('click', doSendMessage, true);
+                    sendButton.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('发送按钮触摸结束，执行发送');
+                        doSendMessage();
+                    }, false);
+                }
                 
-                window.createNewChat = window.createNewChat || function() {
-                    console.log('尝试执行createNewChat函数');
-                    const event = new Event('create-new-chat');
-                    document.dispatchEvent(event);
-                };
+                // 特殊处理设置按钮
+                const settingsButton = document.getElementById('settingsBtn');
+                if (settingsButton) {
+                    const doOpenSettings = function() {
+                        console.log('执行特殊打开设置操作');
+                        try {
+                            if (typeof openSettings === 'function') {
+                                openSettings();
+                            } else if (window.openSettings) {
+                                window.openSettings();
+                            } else {
+                                // 直接显示设置模态框
+                                const settingsModal = document.getElementById('settingsModal');
+                                if (settingsModal) {
+                                    settingsModal.style.display = 'block';
+                                }
+                            }
+                        } catch (err) {
+                            console.error('打开设置失败:', err);
+                            const settingsModal = document.getElementById('settingsModal');
+                            if (settingsModal) {
+                                settingsModal.style.display = 'block';
+                            }
+                        }
+                    };
+                    
+                    settingsButton.addEventListener('click', doOpenSettings, true);
+                    settingsButton.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('设置按钮触摸结束，打开设置');
+                        doOpenSettings();
+                    }, false);
+                }
                 
-                window.openSettings = window.openSettings || function() {
-                    console.log('尝试执行openSettings函数');
-                    const settingsModal = document.getElementById('settingsModal');
-                    if (settingsModal) settingsModal.style.display = 'block';
-                };
-                
-                document.addEventListener('send-message', function() {
-                    const sendBtnClickEvent = new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window
-                    });
-                    const sendBtn = document.getElementById('sendBtn');
-                    if (sendBtn) sendBtn.dispatchEvent(sendBtnClickEvent);
+                // 为提示按钮添加特殊处理
+                const promptButtons = document.querySelectorAll('.prompt-btn');
+                promptButtons.forEach(function(btn) {
+                    const handlePrompt = function() {
+                        const promptText = btn.textContent.trim();
+                        const userInput = document.getElementById('userInput');
+                        if (userInput) {
+                            userInput.value = promptText;
+                            userInput.style.height = 'auto';
+                            userInput.style.height = userInput.scrollHeight + 'px';
+                            
+                            // 触发发送按钮点击
+                            const sendBtn = document.getElementById('sendBtn');
+                            if (sendBtn) {
+                                sendBtn.click();
+                            }
+                        }
+                    };
+                    
+                    btn.addEventListener('click', handlePrompt, true);
+                    btn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('提示按钮触摸结束，执行操作');
+                        handlePrompt();
+                    }, false);
                 });
                 
-                document.addEventListener('create-new-chat', function() {
-                    const newChatBtnClickEvent = new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window
-                    });
-                    const newChatBtn = document.getElementById('newChatBtn');
-                    if (newChatBtn) newChatBtn.dispatchEvent(newChatBtnClickEvent);
-                });
-                
-                // 为动态添加的元素添加触摸事件
+                // 定义一个MutationObserver以处理动态添加的按钮
                 const observer = new MutationObserver(function(mutations) {
                     mutations.forEach(function(mutation) {
                         if (mutation.addedNodes && mutation.addedNodes.length > 0) {
                             for (let i = 0; i < mutation.addedNodes.length; i++) {
                                 const node = mutation.addedNodes[i];
                                 if (node.nodeType === 1) { // 元素节点
+                                    // 检查新添加的按钮
                                     const buttons = node.querySelectorAll('button');
                                     if (buttons.length > 0) {
                                         console.log('发现新添加的按钮:', buttons.length);
                                         buttons.forEach(function(btn) {
-                                            // 为新按钮添加触摸事件
-                                            btn.addEventListener('touchstart', function(e) {
-                                                console.log('新按钮触摸开始:', this.id || this.className);
-                                                this.classList.add('touch-active');
-                                            }, {passive: false});
+                                            // 为新按钮添加事件
+                                            btn.addEventListener('click', function(e) {
+                                                console.log('新按钮点击:', this.className || this.id);
+                                                
+                                                if (this.classList.contains('prompt-btn')) {
+                                                    const promptText = this.textContent.trim();
+                                                    const userInput = document.getElementById('userInput');
+                                                    if (userInput) {
+                                                        userInput.value = promptText;
+                                                        userInput.style.height = 'auto';
+                                                        userInput.style.height = userInput.scrollHeight + 'px';
+                                                        
+                                                        const sendBtn = document.getElementById('sendBtn');
+                                                        if (sendBtn) {
+                                                            sendBtn.click();
+                                                        }
+                                                    }
+                                                } else if (this.classList.contains('delete-chat-btn')) {
+                                                    const chatId = this.closest('.chat-item').getAttribute('data-id');
+                                                    if (chatId && window.confirmDeleteChat) {
+                                                        window.confirmDeleteChat(chatId);
+                                                    }
+                                                }
+                                            }, true);
                                             
                                             btn.addEventListener('touchend', function(e) {
-                                                console.log('新按钮触摸结束:', this.id || this.className);
-                                                this.classList.remove('touch-active');
                                                 e.preventDefault();
-                                                
-                                                // 模拟点击事件
-                                                const clickEvent = new MouseEvent('click', {
-                                                    bubbles: true,
-                                                    cancelable: true,
-                                                    view: window
-                                                });
-                                                this.dispatchEvent(clickEvent);
-                                            }, {passive: false});
+                                                e.stopPropagation();
+                                                console.log('新按钮触摸结束, 模拟点击');
+                                                this.click();
+                                            }, false);
+                                        });
+                                    }
+                                    
+                                    // 检查新添加的聊天项
+                                    const chatItems = node.querySelectorAll('.chat-item');
+                                    if (chatItems.length > 0) {
+                                        chatItems.forEach(function(item) {
+                                            item.addEventListener('click', function() {
+                                                const chatId = this.getAttribute('data-id');
+                                                if (chatId && window.loadChat) {
+                                                    window.loadChat(chatId);
+                                                }
+                                            }, true);
+                                            
+                                            item.addEventListener('touchend', function(e) {
+                                                e.preventDefault();
+                                                const chatId = this.getAttribute('data-id');
+                                                if (chatId && window.loadChat) {
+                                                    window.loadChat(chatId);
+                                                }
+                                            }, false);
                                         });
                                     }
                                 }
@@ -333,7 +556,184 @@
                     subtree: true
                 });
                 
-            }, 1000); // 延迟1秒确保页面完全加载
+                // 确保自定义选择器可点击
+                function fixCustomSelectors() {
+                    // 语言选择器
+                    const langHeaders = document.querySelectorAll('.language-select-header');
+                    langHeaders.forEach(function(header) {
+                        header.addEventListener('click', function() {
+                            const selector = this.closest('.custom-language-selector');
+                            if (selector) {
+                                // 关闭所有其他选择器
+                                document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(function(s) {
+                                    if (s !== selector) {
+                                        s.classList.remove('open');
+                                    }
+                                });
+                                // 切换当前选择器
+                                selector.classList.toggle('open');
+                            }
+                        }, true);
+                        
+                        header.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.click();
+                        }, false);
+                    });
+                    
+                    // 模型选择器
+                    const modelHeaders = document.querySelectorAll('.model-select-header');
+                    modelHeaders.forEach(function(header) {
+                        header.addEventListener('click', function() {
+                            const selector = this.closest('.custom-model-selector');
+                            if (selector) {
+                                // 关闭所有其他选择器
+                                document.querySelectorAll('.custom-language-selector.open, .custom-model-selector.open').forEach(function(s) {
+                                    if (s !== selector) {
+                                        s.classList.remove('open');
+                                    }
+                                });
+                                // 切换当前选择器
+                                selector.classList.toggle('open');
+                            }
+                        }, true);
+                        
+                        header.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.click();
+                        }, false);
+                    });
+                    
+                    // 语言选项
+                    const langOptions = document.querySelectorAll('.language-option');
+                    langOptions.forEach(function(option) {
+                        option.addEventListener('click', function() {
+                            const selector = this.closest('.custom-language-selector');
+                            const headerText = selector.querySelector('.language-select-header-text');
+                            const langSelect = document.getElementById('languageSelect');
+                            
+                            // 更新选中状态
+                            document.querySelectorAll('.language-option').forEach(function(opt) {
+                                opt.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                            
+                            // 更新标题文本
+                            if (headerText) {
+                                headerText.textContent = this.textContent;
+                            }
+                            
+                            // 更新原生选择器并触发change事件
+                            if (langSelect) {
+                                for (let i = 0; i < langSelect.options.length; i++) {
+                                    if (langSelect.options[i].textContent === this.textContent) {
+                                        langSelect.selectedIndex = i;
+                                        const event = new Event('change');
+                                        langSelect.dispatchEvent(event);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 关闭选择器
+                            selector.classList.remove('open');
+                        }, true);
+                        
+                        option.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.click();
+                        }, false);
+                    });
+                    
+                    // 模型选项
+                    const modelOptions = document.querySelectorAll('.model-option');
+                    modelOptions.forEach(function(option) {
+                        option.addEventListener('click', function() {
+                            const selector = this.closest('.custom-model-selector');
+                            const headerText = selector.querySelector('.model-select-header-text');
+                            const modelSelect = document.getElementById('modelSelect');
+                            
+                            // 更新选中状态
+                            document.querySelectorAll('.model-option').forEach(function(opt) {
+                                opt.classList.remove('selected');
+                            });
+                            this.classList.add('selected');
+                            
+                            // 更新标题文本
+                            if (headerText) {
+                                headerText.textContent = this.textContent;
+                            }
+                            
+                            // 更新原生选择器并触发change事件
+                            if (modelSelect) {
+                                for (let i = 0; i < modelSelect.options.length; i++) {
+                                    if (modelSelect.options[i].textContent === this.textContent) {
+                                        modelSelect.selectedIndex = i;
+                                        const event = new Event('change');
+                                        modelSelect.dispatchEvent(event);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 关闭选择器
+                            selector.classList.remove('open');
+                        }, true);
+                        
+                        option.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.click();
+                        }, false);
+                    });
+                }
+                
+                // 初始调用
+                fixCustomSelectors();
+                
+                // 监听动态添加的选择器
+                const selectorObserver = new MutationObserver(function(mutations) {
+                    let shouldFix = false;
+                    
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                            for (let i = 0; i < mutation.addedNodes.length; i++) {
+                                const node = mutation.addedNodes[i];
+                                if (node.nodeType === 1) { // 元素节点
+                                    if (node.classList && 
+                                        (node.classList.contains('custom-language-selector') || 
+                                         node.classList.contains('custom-model-selector'))) {
+                                        shouldFix = true;
+                                        break;
+                                    }
+                                    
+                                    if (node.querySelector && 
+                                        (node.querySelector('.custom-language-selector') || 
+                                         node.querySelector('.custom-model-selector'))) {
+                                        shouldFix = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    if (shouldFix) {
+                        console.log('检测到选择器变化，修复选择器点击事件');
+                        setTimeout(fixCustomSelectors, 100);
+                    }
+                });
+                
+                // 监听DOM变化以检测选择器
+                selectorObserver.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+                
+            }, 500); // 延迟500ms确保页面完全加载
         });
     </script>
 </body>
